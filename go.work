@@ -3,9 +3,11 @@ go 1.20
 use (
 	.
 	./client
+	./client/model
 	./client/view
 	./client/viewmodel
 	./domain
+	./domain/dto
 	./domain/entity
 	./domain/vo
 	./shared

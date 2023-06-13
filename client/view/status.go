@@ -1,8 +1,8 @@
 package view
 
 import (
+	"client/model"
 	"client/viewmodel"
-	"domain/entity"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -10,10 +10,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewStatus(tss *entity.TimeStatusSet) *fyne.Container {
+func NewStatus(api *model.Api) *fyne.Container {
 	workTotal := binding.NewString()
 	restTotal := binding.NewString()
-	vm := viewmodel.NewStatusViewModel(tss, workTotal, restTotal)
+	vm := viewmodel.NewStatusViewModel(api, workTotal, restTotal)
 
 	lWorkTotal := widget.NewLabelWithData(vm.WorkTotal.(binding.String))
 	lRestTotal := widget.NewLabelWithData(vm.RestTotal.(binding.String))

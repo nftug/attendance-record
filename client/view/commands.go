@@ -1,8 +1,8 @@
 package view
 
 import (
+	"client/model"
 	"client/viewmodel"
-	"domain/entity"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -10,11 +10,11 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewCommands(tss *entity.TimeStatusSet) *fyne.Container {
+func NewCommands(api *model.Api) *fyne.Container {
 	btnWorking := widget.NewButton("", func() {})
 	btnResting := widget.NewButton("", func() {})
 
-	vm := viewmodel.NewCommandsViewModel(tss, btnWorking, btnResting)
+	vm := viewmodel.NewCommandsViewModel(api, btnWorking, btnResting)
 	btnWorking.OnTapped = vm.OnPressBtnWorking
 	btnResting.OnTapped = vm.OnPressBtnResting
 

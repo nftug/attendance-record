@@ -1,13 +1,13 @@
 package view
 
 import (
-	"usecase"
+	"client/model"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 )
 
 func NewWindowContent() *fyne.Container {
-	tss := usecase.InitTimeStatusSet()
-	return container.NewVBox(NewClock(), NewCommands(tss), NewStatus(tss))
+	api := model.NewApi()
+	return container.NewVBox(NewClock(), NewCommands(api), NewStatus(api))
 }

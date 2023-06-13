@@ -1,12 +1,13 @@
 package viewmodel
 
 import (
-	"domain/entity"
-	"usecase"
+	"client/model"
+	"domain/dto"
 )
 
 type CommandsViewModel struct {
-	*entity.TimeStatusSet
+	api        *model.Api
+	model      *dto.TimeStatusSetDto
 	btnWorking CommandButton
 	btnResting CommandButton
 }
@@ -17,27 +18,20 @@ type CommandButton interface {
 	Disable()
 }
 
-func NewCommandsViewModel(
-	tss *entity.TimeStatusSet,
-	btnWorking CommandButton,
-	btnResting CommandButton,
-) *CommandsViewModel {
-	vm := &CommandsViewModel{
-		TimeStatusSet: tss,
-		btnWorking:    btnWorking,
-		btnResting:    btnResting,
-	}
+func NewCommandsViewModel(api *model.Api, btnWorking CommandButton, btnResting CommandButton) *CommandsViewModel {
+	st := api.LoadTimeStatus()
+	vm := &CommandsViewModel{api, st, btnWorking, btnResting}
 	vm.updateView()
 	return vm
 }
 
 func (vm *CommandsViewModel) OnPressBtnWorking() {
-	usecase.ToggleWork(vm.TimeStatusSet)
+	vm.model = vm.api.ToggleWork()
 	vm.updateView()
 }
 
 func (vm *CommandsViewModel) OnPressBtnResting() {
-	usecase.ToggleRest(vm.TimeStatusSet)
+	vm.model = vm.api.ToggleRest()
 	vm.updateView()
 }
 
@@ -47,13 +41,13 @@ func (vm *CommandsViewModel) updateView() {
 }
 
 func (vm *CommandsViewModel) updateBtnText() {
-	if vm.Work.IsActive {
+	if vm.model.Work.IsActive {
 		vm.btnWorking.SetText("Leave")
 	} else {
 		vm.btnWorking.SetText("Attend")
 	}
 
-	if vm.Rest.IsActive {
+	if vm.model.Rest.IsActive {
 		vm.btnResting.SetText("End Rest")
 	} else {
 		vm.btnResting.SetText("Start Rest")
@@ -61,13 +55,13 @@ func (vm *CommandsViewModel) updateBtnText() {
 }
 
 func (vm *CommandsViewModel) updateBtnEnabled() {
-	if vm.Work.IsToggleEnabled {
+	if vm.model.Work.IsToggleEnabled {
 		vm.btnWorking.Enable()
 	} else {
 		vm.btnWorking.Disable()
 	}
 
-	if vm.Rest.IsToggleEnabled {
+	if vm.model.Rest.IsToggleEnabled {
 		vm.btnResting.Enable()
 	} else {
 		vm.btnResting.Disable()

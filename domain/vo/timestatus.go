@@ -1,9 +1,6 @@
 package vo
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
 type TimeStatus struct {
 	IsToggleEnabled bool
@@ -26,13 +23,24 @@ func (ts *TimeStatus) ToggleActive() {
 	} else {
 		ts.EndTime = time.Now()
 		ts.TotalTime += ts.EndTime.Sub(ts.StartTime)
+		// ts.TotalTime = ts.GetCurrentTotalTime()
 	}
 }
 
-func (ts *TimeStatus) OnTickTimer() {
-	if !ts.IsActive || !ts.IsToggleEnabled {
-		fmt.Println("Not active")
-		return
+/*
+func (ts *TimeStatus) GetCurrentTotalTime() time.Duration {
+	d := ts.TotalTime + time.Since(ts.StartTime)
+	if ts.pauseTime != *new(time.Time) {
+		d -= time.Since(ts.pauseTime)
 	}
-	ts.TotalTime += time.Duration(1) * time.Second
+	return d
 }
+
+func (ts *TimeStatus) SetPauseState(v bool) {
+	if v {
+		ts.pauseTime = time.Now()
+	} else {
+		ts.pauseTime = time.Time{}
+	}
+}
+*/

@@ -1,39 +1,65 @@
 package entity
 
 import (
+	"domain/dto"
 	"domain/vo"
+	"time"
 )
 
 type TimeStatusSet struct {
-	Work *vo.TimeStatus
-	Rest *vo.TimeStatus
+	work vo.TimeStatus
+	rest vo.TimeStatus
 }
 
 func NewTimeStatusSet() *TimeStatusSet {
 	return &TimeStatusSet{
-		Work: &vo.TimeStatus{IsToggleEnabled: true},
-		Rest: &vo.TimeStatus{IsToggleEnabled: false},
+		work: vo.TimeStatus{IsToggleEnabled: true},
+		rest: vo.TimeStatus{IsToggleEnabled: false},
 	}
 }
 
 func (tss *TimeStatusSet) ToggleWork() {
-	tss.Work.ToggleActive()
+	tss.work.ToggleActive()
 
-	if !tss.Work.IsActive {
-		tss.Rest = &vo.TimeStatus{IsToggleEnabled: false}
+	if tss.work.IsActive {
+		tss.rest.IsToggleEnabled = true
+		// tss.rest.SetPauseState(true)
 	} else {
-		tss.Rest.IsToggleEnabled = true
+		tss.rest = vo.TimeStatus{IsToggleEnabled: false}
+		// tss.rest.SetPauseState(false)
 	}
 }
 
 func (tss *TimeStatusSet) ToggleRest() {
-	tss.Rest.ToggleActive()
-	tss.Work.IsToggleEnabled = !tss.Rest.IsActive
+	tss.rest.ToggleActive()
+	tss.work.IsToggleEnabled = !tss.rest.IsActive
+
+	if !tss.rest.IsActive {
+		// 休憩が終わったら、総勤務時間から休憩時間を引く
+		tss.work.TotalTime -= time.Since(tss.rest.StartTime)
+	}
 
 	/*
-		if !tss.Rest.IsActive {
+		if tss.rest.IsActive {
+			tss.work.SetPauseState(true)
+		} else {
+			tss.work.SetPauseState(false)
+
 			// 休憩が終わったら、総勤務時間から休憩時間を引く
-			tss.Work.TotalTime -= time.Since(tss.Rest.StartTime)
+			// tss.work.TotalTime -= time.Since(tss.rest.StartTime)
 		}
 	*/
+}
+
+/*
+func (tss *TimeStatusSet) GetCurrent() *dto.TimeStatusSetDto {
+	result := tss.ToDto()
+	result.Work.TotalTime = tss.work.GetCurrentTotalTime() - tss.rest.TotalTime
+	result.Rest.TotalTime = tss.rest.GetCurrentTotalTime()
+	return result
+}
+*/
+
+func (tss *TimeStatusSet) ToDto() *dto.TimeStatusSetDto {
+	return &dto.TimeStatusSetDto{Work: tss.work, Rest: tss.rest}
 }
