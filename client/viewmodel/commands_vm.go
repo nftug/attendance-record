@@ -8,19 +8,13 @@ import (
 type CommandsViewModel struct {
 	api        *model.Api
 	model      *dto.TimeStatusSetDto
-	btnWorking CommandButton
-	btnResting CommandButton
+	btnWorking Button
+	btnResting Button
 }
 
-type CommandButton interface {
-	SetText(v string)
-	Enable()
-	Disable()
-}
-
-func NewCommandsViewModel(api *model.Api, btnWorking CommandButton, btnResting CommandButton) *CommandsViewModel {
+func NewCommandsViewModel(api *model.Api, btnW Button, btnR Button) *CommandsViewModel {
 	st := api.LoadTimeStatus()
-	vm := &CommandsViewModel{api, st, btnWorking, btnResting}
+	vm := &CommandsViewModel{api, st, btnW, btnR}
 	vm.updateView()
 	return vm
 }

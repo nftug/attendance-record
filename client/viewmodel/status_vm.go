@@ -8,25 +8,18 @@ import (
 	"time"
 )
 
-type Binding interface {
-	Get() (string, error)
-	Set(string) error
-}
-
 type StatusViewModel struct {
 	api       *model.Api
 	model     *dto.TimeStatusSetDto
 	workTotal time.Duration
 	restTotal time.Duration
-	WorkTotal Binding
-	RestTotal Binding
+	WorkTotal Binding[string]
+	RestTotal Binding[string]
 }
 
 func (vm *StatusViewModel) update() {
-	w := fmt.Sprintf("Work time total: %s", vm.workTotal)
-	r := fmt.Sprintf("Rest time total: %s ", vm.restTotal)
-	vm.WorkTotal.Set(w)
-	vm.RestTotal.Set(r)
+	vm.WorkTotal.Set(fmt.Sprintf("Work time total: %s", vm.workTotal))
+	vm.RestTotal.Set(fmt.Sprintf("Rest time total: %s ", vm.restTotal))
 }
 
 func (vm *StatusViewModel) startUpdateTick() {
@@ -47,7 +40,7 @@ func (vm *StatusViewModel) onTickTimer(ts vo.TimeStatus, d *time.Duration) {
 	*d += time.Duration(1) * time.Second
 }
 
-func NewStatusViewModel(api *model.Api, work Binding, rest Binding) *StatusViewModel {
+func NewStatusViewModel(api *model.Api, work Binding[string], rest Binding[string]) *StatusViewModel {
 	st := api.LoadTimeStatus()
 	vm := &StatusViewModel{api, st, 0, 0, work, rest}
 	vm.update()

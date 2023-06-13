@@ -1,11 +1,7 @@
 package main
 
-import (
-	"client"
-	"fmt"
-)
+import "client"
 
 func main() {
-	fmt.Println("Started")
 	client.ShowAndRun()
 }
