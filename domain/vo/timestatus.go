@@ -23,24 +23,5 @@ func (ts *TimeStatus) ToggleActive() {
 	} else {
 		ts.EndTime = time.Now()
 		ts.TotalTime += ts.EndTime.Sub(ts.StartTime)
-		// ts.TotalTime = ts.GetCurrentTotalTime()
 	}
 }
-
-/*
-func (ts *TimeStatus) GetCurrentTotalTime() time.Duration {
-	d := ts.TotalTime + time.Since(ts.StartTime)
-	if ts.pauseTime != *new(time.Time) {
-		d -= time.Since(ts.pauseTime)
-	}
-	return d
-}
-
-func (ts *TimeStatus) SetPauseState(v bool) {
-	if v {
-		ts.pauseTime = time.Now()
-	} else {
-		ts.pauseTime = time.Time{}
-	}
-}
-*/

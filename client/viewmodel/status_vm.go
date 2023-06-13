@@ -23,8 +23,6 @@ type StatusViewModel struct {
 }
 
 func (vm *StatusViewModel) update() {
-	// w := fmt.Sprintf("Work time total: %s", vm.model.Work.TotalTime)
-	// r := fmt.Sprintf("Rest time total: %s ", vm.model.Rest.TotalTime)
 	w := fmt.Sprintf("Work time total: %s", vm.workTotal)
 	r := fmt.Sprintf("Rest time total: %s ", vm.restTotal)
 	vm.WorkTotal.Set(w)
@@ -57,14 +55,3 @@ func NewStatusViewModel(api *model.Api, work Binding, rest Binding) *StatusViewM
 
 	return vm
 }
-
-/*
-func NewStatusViewModel(api *model.Api, work Binding, rest Binding) *StatusViewModel {
-	st := api.LoadTimeStatus()
-	vm := &StatusViewModel{api, st, work, rest}
-	vm.update()
-	vm.startUpdateTick()
-
-	return vm
-}
-*/

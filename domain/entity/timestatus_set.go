@@ -23,10 +23,8 @@ func (tss *TimeStatusSet) ToggleWork() {
 
 	if tss.work.IsActive {
 		tss.rest.IsToggleEnabled = true
-		// tss.rest.SetPauseState(true)
 	} else {
 		tss.rest = vo.TimeStatus{IsToggleEnabled: false}
-		// tss.rest.SetPauseState(false)
 	}
 }
 
@@ -38,27 +36,7 @@ func (tss *TimeStatusSet) ToggleRest() {
 		// 休憩が終わったら、総勤務時間から休憩時間を引く
 		tss.work.TotalTime -= time.Since(tss.rest.StartTime)
 	}
-
-	/*
-		if tss.rest.IsActive {
-			tss.work.SetPauseState(true)
-		} else {
-			tss.work.SetPauseState(false)
-
-			// 休憩が終わったら、総勤務時間から休憩時間を引く
-			// tss.work.TotalTime -= time.Since(tss.rest.StartTime)
-		}
-	*/
 }
-
-/*
-func (tss *TimeStatusSet) GetCurrent() *dto.TimeStatusSetDto {
-	result := tss.ToDto()
-	result.Work.TotalTime = tss.work.GetCurrentTotalTime() - tss.rest.TotalTime
-	result.Rest.TotalTime = tss.rest.GetCurrentTotalTime()
-	return result
-}
-*/
 
 func (tss *TimeStatusSet) ToDto() *dto.TimeStatusSetDto {
 	return &dto.TimeStatusSetDto{Work: tss.work, Rest: tss.rest}
