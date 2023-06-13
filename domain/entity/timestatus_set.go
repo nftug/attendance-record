@@ -1,18 +1,39 @@
 package entity
 
-import "domain/vo"
+import (
+	"domain/vo"
+)
 
 type TimeStatusSet struct {
-	WorkTimeStatus *vo.TimeStatus
-	RestTimeStatus *vo.TimeStatus
+	Work *vo.TimeStatus
+	Rest *vo.TimeStatus
 }
 
-func (tss *TimeStatusSet) ToggleWorkTimeStatus() {
-	tss.WorkTimeStatus.ToggleActive()
-	tss.RestTimeStatus.IsToggleEnabled = tss.WorkTimeStatus.IsActive
+func NewTimeStatusSet() *TimeStatusSet {
+	return &TimeStatusSet{
+		Work: &vo.TimeStatus{IsToggleEnabled: true},
+		Rest: &vo.TimeStatus{IsToggleEnabled: false},
+	}
 }
 
-func (tss *TimeStatusSet) ToggleRestTimeStatus() {
-	tss.RestTimeStatus.ToggleActive()
-	tss.WorkTimeStatus.IsToggleEnabled = !tss.RestTimeStatus.IsActive
+func (tss *TimeStatusSet) ToggleWork() {
+	tss.Work.ToggleActive()
+
+	if !tss.Work.IsActive {
+		tss.Rest = &vo.TimeStatus{IsToggleEnabled: false}
+	} else {
+		tss.Rest.IsToggleEnabled = true
+	}
+}
+
+func (tss *TimeStatusSet) ToggleRest() {
+	tss.Rest.ToggleActive()
+	tss.Work.IsToggleEnabled = !tss.Rest.IsActive
+
+	/*
+		if !tss.Rest.IsActive {
+			// 休憩が終わったら、総勤務時間から休憩時間を引く
+			tss.Work.TotalTime -= time.Since(tss.Rest.StartTime)
+		}
+	*/
 }

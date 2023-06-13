@@ -1,11 +1,20 @@
 package usecase
 
-import "domain/entity"
+import (
+	"domain/entity"
+	"fmt"
+	"shared"
+)
 
-func ToggleWorkTimeStatus(tss *entity.TimeStatusSet) {
-	tss.ToggleWorkTimeStatus()
+func ToggleWork(tss *entity.TimeStatusSet) {
+	tss.ToggleWork()
+	shared.PrintAsJson(tss.Work)
+	if !tss.Work.IsActive {
+		fmt.Println(tss.Work.TotalTime)
+	}
 }
 
-func ToggleRestTimeStatus(tss *entity.TimeStatusSet) {
-	tss.ToggleRestTimeStatus()
+func ToggleRest(tss *entity.TimeStatusSet) {
+	tss.ToggleRest()
+	shared.PrintAsJson(tss.Rest)
 }

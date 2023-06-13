@@ -8,5 +8,6 @@ use (
 	./domain
 	./domain/entity
 	./domain/vo
+	./shared
 	./usecase
 )
