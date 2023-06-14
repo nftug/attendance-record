@@ -1,9 +1,9 @@
 package service
 
 import (
-	"domain/dto"
-	"domain/entity"
-	"domain/interfaces"
+	"attendance-record/domain/dto"
+	"attendance-record/domain/entity"
+	"attendance-record/domain/interfaces"
 	"time"
 )
 

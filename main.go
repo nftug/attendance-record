@@ -1,8 +1,8 @@
 package main
 
 import (
-	"client"
-	"client/model"
+	"attendance-record/client"
+	"attendance-record/client/model"
 )
 
 func main() {

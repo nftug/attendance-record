@@ -1,8 +1,8 @@
 package viewmodel
 
 import (
-	"client/model"
-	"domain/dto"
+	"attendance-record/client/model"
+	"attendance-record/domain/dto"
 	"fmt"
 )
 

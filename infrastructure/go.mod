@@ -1,4 +1,4 @@
-module infrastructure
+module attendance-record/infrastructure
 
 go 1.20
 

@@ -1,7 +1,7 @@
 package interfaces
 
 import (
-	"domain/entity"
+	"attendance-record/domain/entity"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"

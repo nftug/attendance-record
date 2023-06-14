@@ -1,9 +1,9 @@
 package model
 
 import (
-	"domain/dto"
-	"shared"
-	"usecase"
+	"attendance-record/domain/dto"
+	"attendance-record/shared"
+	"attendance-record/usecase"
 )
 
 type Api struct {

@@ -1,4 +1,4 @@
-module client
+module attendance-record/client
 
 go 1.20
 

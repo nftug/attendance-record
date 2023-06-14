@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"domain/entity"
-	"domain/interfaces"
+	"attendance-record/domain/entity"
+	"attendance-record/domain/interfaces"
 	"log"
 	"time"
 

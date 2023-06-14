@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"domain/dto"
-	"shared"
+	"attendance-record/domain/dto"
+	"attendance-record/shared"
 )
 
 func ToggleWork(session *shared.Session) *dto.CurrentTimeStatusDto {

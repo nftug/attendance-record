@@ -1,8 +1,8 @@
 package shared
 
 import (
-	"domain/service"
-	"infrastructure/repository"
+	"attendance-record/domain/service"
+	"attendance-record/infrastructure/repository"
 )
 
 type Session struct {

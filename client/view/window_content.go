@@ -1,7 +1,7 @@
 package view
 
 import (
-	"client/model"
+	"attendance-record/client/model"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"

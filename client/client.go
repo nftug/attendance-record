@@ -1,9 +1,9 @@
 package client
 
 import (
-	"client/model"
-	"client/resource"
-	"client/view"
+	"attendance-record/client/model"
+	"attendance-record/client/resource"
+	"attendance-record/client/view"
 
 	"fyne.io/fyne/v2/app"
 )

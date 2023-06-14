@@ -1,7 +1,7 @@
 package view
 
 import (
-	"client/viewmodel"
+	"attendance-record/client/viewmodel"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
