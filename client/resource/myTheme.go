@@ -20,12 +20,12 @@ func (*MyTheme) Font(s fyne.TextStyle) fyne.Resource {
 		if s.Italic {
 			return theme.DefaultTheme().Font(s)
 		}
-		return resourceMPLUS1BoldTtf
+		return resourceGenShinGothicBoldTtf
 	}
 	if s.Italic {
 		return theme.DefaultTheme().Font(s)
 	}
-	return resourceMPLUS1RegularTtf
+	return resourceGenShinGothicRegularTtf
 }
 
 func (*MyTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {

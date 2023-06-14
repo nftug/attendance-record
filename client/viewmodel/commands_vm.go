@@ -10,11 +10,12 @@ type CommandsViewModel struct {
 	model      *dto.TimeStatusSetDto
 	btnWorking Button
 	btnResting Button
+	window     Window
 }
 
-func NewCommandsViewModel(api *model.Api, btnW Button, btnR Button) *CommandsViewModel {
+func NewCommandsViewModel(api *model.Api, btnW Button, btnR Button, w Window) *CommandsViewModel {
 	st := api.LoadTimeStatus()
-	vm := &CommandsViewModel{api, st, btnW, btnR}
+	vm := &CommandsViewModel{api, st, btnW, btnR, w}
 	vm.updateView()
 	return vm
 }
@@ -30,15 +31,16 @@ func (vm *CommandsViewModel) OnPressBtnResting() {
 }
 
 func (vm *CommandsViewModel) updateView() {
-	vm.updateBtnText()
-	vm.updateBtnEnabled()
+	vm.updateByIsActive()
+	vm.updateByBtnEnabled()
 }
 
-func (vm *CommandsViewModel) updateBtnText() {
+func (vm *CommandsViewModel) updateByIsActive() {
 	if vm.model.Work.IsActive {
 		vm.btnWorking.SetText("退勤")
 	} else {
 		vm.btnWorking.SetText("出勤")
+		vm.window.SetTitle("勤怠記録")
 	}
 
 	if vm.model.Rest.IsActive {
@@ -46,9 +48,17 @@ func (vm *CommandsViewModel) updateBtnText() {
 	} else {
 		vm.btnResting.SetText("休憩開始")
 	}
+
+	if vm.model.Rest.IsActive {
+		vm.window.SetTitle("勤怠記録 - [休憩中]")
+	} else if vm.model.Work.IsActive {
+		vm.window.SetTitle("勤怠記録 - [出勤中]")
+	} else {
+		vm.window.SetTitle("勤怠記録")
+	}
 }
 
-func (vm *CommandsViewModel) updateBtnEnabled() {
+func (vm *CommandsViewModel) updateByBtnEnabled() {
 	if vm.model.Work.IsToggleEnabled {
 		vm.btnWorking.Enable()
 	} else {

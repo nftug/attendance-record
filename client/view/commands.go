@@ -10,11 +10,11 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewCommands(api *model.Api) *fyne.Container {
+func NewCommands(api *model.Api, w fyne.Window) *fyne.Container {
 	btnWorking := widget.NewButton("", func() {})
 	btnResting := widget.NewButton("", func() {})
 
-	vm := viewmodel.NewCommandsViewModel(api, btnWorking, btnResting)
+	vm := viewmodel.NewCommandsViewModel(api, btnWorking, btnResting, w)
 	btnWorking.OnTapped = vm.OnPressBtnWorking
 	btnResting.OnTapped = vm.OnPressBtnResting
 

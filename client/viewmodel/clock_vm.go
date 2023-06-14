@@ -7,7 +7,7 @@ import (
 type RenderHandler func(v string)
 
 func updateClock(f RenderHandler) {
-	f(time.Now().Format("03:04:05"))
+	f(time.Now().Format("15:04:05"))
 }
 
 func UpdateByTick(f RenderHandler) {

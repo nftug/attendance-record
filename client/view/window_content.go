@@ -7,6 +7,6 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-func NewWindowContent(api *model.Api) *fyne.Container {
-	return container.NewVBox(NewClock(), NewCommands(api), NewStatus(api))
+func NewWindowContent(api *model.Api, w fyne.Window) *fyne.Container {
+	return container.NewVBox(NewClock(), NewCommands(api, w), NewStatus(api))
 }

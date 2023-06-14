@@ -14,3 +14,7 @@ type Binding[T any] interface {
 	Get() (T, error)
 	Set(T) error
 }
+
+type Window interface {
+	SetTitle(v string)
+}
