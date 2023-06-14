@@ -22,6 +22,6 @@ func (ts *TimeStatus) ToggleActive() {
 		ts.EndTime = time.Time{}
 	} else {
 		ts.EndTime = time.Now()
-		ts.TotalTime += ts.EndTime.Sub(ts.StartTime)
+		// ts.TotalTime += ts.EndTime.Sub(ts.StartTime)
 	}
 }

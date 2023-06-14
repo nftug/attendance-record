@@ -5,17 +5,16 @@ import (
 	"shared"
 )
 
-func ToggleWork(session *shared.Session) *dto.TimeStatusSetDto {
-	session.TimeStatusSet.ToggleWork()
-	return session.TimeStatusSet.ToDto()
+func ToggleWork(session *shared.Session) *dto.CurrentTimeStatusDto {
+	session.TimeStatusService.ToggleWork()
+	return session.TimeStatusService.GetCurrent()
 }
 
-func ToggleRest(session *shared.Session) *dto.TimeStatusSetDto {
-	session.TimeStatusSet.ToggleRest()
-	return session.TimeStatusSet.ToDto()
+func ToggleRest(session *shared.Session) *dto.CurrentTimeStatusDto {
+	session.TimeStatusService.ToggleRest()
+	return session.TimeStatusService.GetCurrent()
 }
 
-func GetTimeStatus(session *shared.Session) *dto.TimeStatusSetDto {
-	// return session.TimeStatusSet.GetCurrent()
-	return session.TimeStatusSet.ToDto()
+func GetCurrent(session *shared.Session) *dto.CurrentTimeStatusDto {
+	return session.TimeStatusService.GetCurrent()
 }

@@ -1,11 +1,17 @@
 package shared
 
-import "domain/entity"
+import (
+	"domain/service"
+	"infrastructure/repository"
+)
 
 type Session struct {
-	TimeStatusSet *entity.TimeStatusSet
+	TimeStatusService *service.TimeStatusService
 }
 
 func NewSession() *Session {
-	return &Session{TimeStatusSet: entity.NewTimeStatusSet()}
+	wr := repository.NewTimeStatusDummyRepository()
+	rr := repository.NewTimeStatusDummyRepository()
+
+	return &Session{TimeStatusService: service.NewTimeStatusService(wr, rr)}
 }

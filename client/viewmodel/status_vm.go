@@ -3,14 +3,13 @@ package viewmodel
 import (
 	"client/model"
 	"domain/dto"
-	"domain/vo"
 	"fmt"
 	"time"
 )
 
 type StatusViewModel struct {
 	api       *model.Api
-	model     *dto.TimeStatusSetDto
+	model     *dto.CurrentTimeStatusDto
 	workTotal time.Duration
 	restTotal time.Duration
 	WorkTotal Binding[string]
@@ -25,7 +24,7 @@ func (vm *StatusViewModel) update() {
 func (vm *StatusViewModel) startUpdateTick() {
 	go func() {
 		for range time.Tick(time.Second) {
-			vm.model = vm.api.LoadTimeStatus()
+			vm.model = vm.api.GetCurrentStatus()
 			vm.onTickTimer(vm.model.Work, &vm.workTotal)
 			vm.onTickTimer(vm.model.Rest, &vm.restTotal)
 			vm.update()
@@ -33,7 +32,7 @@ func (vm *StatusViewModel) startUpdateTick() {
 	}()
 }
 
-func (vm *StatusViewModel) onTickTimer(ts vo.TimeStatus, d *time.Duration) {
+func (vm *StatusViewModel) onTickTimer(ts dto.TimeStatusItemDto, d *time.Duration) {
 	if !ts.IsActive || !ts.IsToggleEnabled {
 		return
 	}
@@ -41,7 +40,7 @@ func (vm *StatusViewModel) onTickTimer(ts vo.TimeStatus, d *time.Duration) {
 }
 
 func NewStatusViewModel(api *model.Api, work Binding[string], rest Binding[string]) *StatusViewModel {
-	st := api.LoadTimeStatus()
+	st := api.GetCurrentStatus()
 	vm := &StatusViewModel{api, st, 0, 0, work, rest}
 	vm.update()
 	vm.startUpdateTick()
