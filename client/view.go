@@ -1,15 +1,18 @@
 package client
 
 import (
+	"client/model"
+	"client/resource"
 	"client/view"
 
 	"fyne.io/fyne/v2/app"
 )
 
-func ShowAndRun() {
+func ShowAndRun(api *model.Api) {
 	a := app.New()
+	a.Settings().SetTheme(&resource.MyTheme{})
 	w := a.NewWindow("Clock")
 
-	w.SetContent(view.NewWindowContent())
+	w.SetContent(view.NewWindowContent(api))
 	w.ShowAndRun()
 }

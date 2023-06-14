@@ -36,15 +36,15 @@ func (vm *CommandsViewModel) updateView() {
 
 func (vm *CommandsViewModel) updateBtnText() {
 	if vm.model.Work.IsActive {
-		vm.btnWorking.SetText("Leave")
+		vm.btnWorking.SetText("退勤")
 	} else {
-		vm.btnWorking.SetText("Attend")
+		vm.btnWorking.SetText("出勤")
 	}
 
 	if vm.model.Rest.IsActive {
-		vm.btnResting.SetText("End Rest")
+		vm.btnResting.SetText("休憩終了")
 	} else {
-		vm.btnResting.SetText("Start Rest")
+		vm.btnResting.SetText("休憩開始")
 	}
 }
 

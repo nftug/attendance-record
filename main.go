@@ -1,7 +1,11 @@
 package main
 
-import "client"
+import (
+	"client"
+	"client/model"
+)
 
 func main() {
-	client.ShowAndRun()
+	api := model.NewApi()
+	client.ShowAndRun(api)
 }

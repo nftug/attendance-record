@@ -18,8 +18,8 @@ type StatusViewModel struct {
 }
 
 func (vm *StatusViewModel) update() {
-	vm.WorkTotal.Set(fmt.Sprintf("Work time total: %s", vm.workTotal))
-	vm.RestTotal.Set(fmt.Sprintf("Rest time total: %s ", vm.restTotal))
+	vm.WorkTotal.Set(fmt.Sprintf("総勤務時間: %s", vm.workTotal))
+	vm.RestTotal.Set(fmt.Sprintf("総休憩時間: %s ", vm.restTotal))
 }
 
 func (vm *StatusViewModel) startUpdateTick() {

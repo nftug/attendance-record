@@ -2,14 +2,14 @@ package view
 
 import (
 	"client/viewmodel"
-	"image/color"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/theme"
 )
 
 func NewClock() *canvas.Text {
-	clock := canvas.NewText("", color.White)
+	clock := canvas.NewText("", theme.ForegroundColor())
 	clock.TextSize = 72
 	clock.Alignment = fyne.TextAlignCenter
 
