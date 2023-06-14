@@ -14,7 +14,7 @@ type timeStatusDummyRepository struct {
 }
 
 func NewTimeStatusDummyRepository() interfaces.TimeStatusRepository {
-	return &timeStatusDummyRepository{data: []entity.TimeStatus{}}
+	return &timeStatusDummyRepository{}
 }
 
 func (r *timeStatusDummyRepository) Create(item entity.TimeStatus) {
