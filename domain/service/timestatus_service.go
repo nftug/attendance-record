@@ -3,6 +3,7 @@ package service
 import (
 	"attendance-record/domain/dto"
 	"attendance-record/domain/entity"
+	"attendance-record/domain/enum"
 	"attendance-record/domain/interfaces"
 	"time"
 )
@@ -16,48 +17,31 @@ func NewTimeStatusService(wr interfaces.TimeStatusRepository, rr interfaces.Time
 	return &TimeStatusService{wr, rr}
 }
 
-func (tss *TimeStatusService) ToggleWork() {
-	if tss.isResting() {
+func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) {
+	if t == enum.Work && tss.isActive(enum.Rest) {
+		return
+	} else if t == enum.Rest && !tss.isActive(enum.Work) {
 		return
 	}
 
-	l, ok := tss.workRepository.QueryByDate(time.Now()).Last().(entity.TimeStatus)
-	if ok && l.IsActive() {
-		// 退勤処理
-		l.End()
-		tss.workRepository.Update(l)
+	repo := tss.getRepository(t)
+	if item := repo.GetLatest(); item != nil && item.IsActive() {
+		item.End()
+		repo.Update(*item)
 	} else {
-		// 出勤処理
-		tss.workRepository.Create(*entity.NewTimeStatus())
+		repo.Create(entity.NewTimeStatus())
 	}
 }
 
-func (tss *TimeStatusService) ToggleRest() {
-	if !tss.isWorking() {
-		return
-	}
-
-	l, ok := tss.restRepository.QueryByDate(time.Now()).Last().(entity.TimeStatus)
-	if ok && l.IsActive() {
-		// 休憩終了
-		l.End()
-		tss.restRepository.Update(l)
-	} else {
-		// 休憩開始
-		tss.restRepository.Create(*entity.NewTimeStatus())
-	}
-}
-
-func (tss *TimeStatusService) GetCurrent() *dto.CurrentTimeStatusDto {
+func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 	var workStartedOn, workEndedOn, restStartedOn, restEndedOn time.Time
 
 	now := time.Now()
 	queryWork := tss.workRepository.QueryByDate(now)
 	queryRest := tss.restRepository.QueryByDate(now)
+	selTotal := func(x entity.TimeStatus) int64 { return int64(x.TotalTime(now)) }
 
-	workTotal := queryWork.SelectT(func(x entity.TimeStatus) int64 {
-		return int64(x.TotalTime(now))
-	}).SumInts()
+	workTotal := queryWork.SelectT(selTotal).SumInts()
 	if wf, ok := queryWork.First().(entity.TimeStatus); ok {
 		workStartedOn = wf.StartTime
 	}
@@ -65,25 +49,23 @@ func (tss *TimeStatusService) GetCurrent() *dto.CurrentTimeStatusDto {
 		workEndedOn = wl.EndTime
 	}
 
-	restTotal := queryRest.SelectT(func(x entity.TimeStatus) int64 {
-		return int64(x.TotalTime(now))
-	}).SumInts()
+	restTotal := queryRest.SelectT(selTotal).SumInts()
 	if rl, ok := queryRest.Last().(entity.TimeStatus); ok {
 		restStartedOn = rl.StartTime
 		restEndedOn = rl.EndTime
 	}
 
-	return &dto.CurrentTimeStatusDto{
+	return dto.CurrentTimeStatusDto{
 		Work: dto.TimeStatusItemDto{
-			IsToggleEnabled: !tss.isResting(),
-			IsActive:        tss.isWorking(),
+			IsToggleEnabled: !tss.isActive(enum.Rest),
+			IsActive:        tss.isActive(enum.Work),
 			TotalTime:       time.Duration(workTotal - restTotal),
 			StartedOn:       workStartedOn,
 			EndedOn:         workEndedOn,
 		},
 		Rest: dto.TimeStatusItemDto{
-			IsToggleEnabled: tss.isWorking(),
-			IsActive:        tss.isResting(),
+			IsToggleEnabled: tss.isActive(enum.Work),
+			IsActive:        tss.isActive(enum.Rest),
 			TotalTime:       time.Duration(restTotal),
 			StartedOn:       restStartedOn,
 			EndedOn:         restEndedOn,
@@ -91,14 +73,16 @@ func (tss *TimeStatusService) GetCurrent() *dto.CurrentTimeStatusDto {
 	}
 }
 
-func (tss *TimeStatusService) isResting() bool {
-	// 休憩中の場合：ボタンを無効化する
-	l, ok := tss.restRepository.QueryByDate(time.Now()).Last().(entity.TimeStatus)
-	return ok && l.IsActive()
+func (tss *TimeStatusService) isActive(t enum.TimeStatusType) bool {
+	l := tss.getRepository(t).GetLatest()
+	return l != nil && l.IsActive()
 }
 
-func (tss *TimeStatusService) isWorking() bool {
-	// 出勤中の場合：ボタンを有効化する
-	l, ok := tss.workRepository.QueryByDate(time.Now()).Last().(entity.TimeStatus)
-	return ok && l.IsActive()
+func (tss *TimeStatusService) getRepository(t enum.TimeStatusType) interfaces.TimeStatusRepository {
+	if t == enum.Work {
+		return tss.workRepository
+	} else if t == enum.Rest {
+		return tss.restRepository
+	}
+	return nil
 }

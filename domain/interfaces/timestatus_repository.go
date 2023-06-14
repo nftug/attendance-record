@@ -10,5 +10,6 @@ import (
 type TimeStatusRepository interface {
 	Create(item entity.TimeStatus)
 	Update(item entity.TimeStatus)
-	QueryByDate(dt time.Time) linq.OrderedQuery
+	QueryByDate(dt time.Time) linq.Query
+	GetLatest() *entity.TimeStatus
 }

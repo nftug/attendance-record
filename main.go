@@ -1,11 +1,7 @@
 package main
 
-import (
-	"attendance-record/client"
-	"attendance-record/client/model"
-)
+import "attendance-record/client"
 
 func main() {
-	api := model.NewApi()
-	client.ShowAndRun(api)
+	client.Run()
 }

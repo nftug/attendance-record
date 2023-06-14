@@ -8,7 +8,7 @@ import (
 
 type CommandsViewModel struct {
 	api           *model.Api
-	model         *dto.CurrentTimeStatusDto
+	model         dto.CurrentTimeStatusDto
 	btnWorking    Button
 	btnResting    Button
 	btnGetCurrent Button
@@ -16,7 +16,13 @@ type CommandsViewModel struct {
 	fMsg          func(string, string)
 }
 
-func NewCommandsViewModel(api *model.Api, btnW Button, btnR Button, btnG Button, w Window, fMsg func(string, string)) *CommandsViewModel {
+func NewCommandsViewModel(
+	api *model.Api,
+	btnW Button,
+	btnR Button,
+	btnG Button,
+	w Window,
+	fMsg func(string, string)) *CommandsViewModel {
 	st := api.GetCurrentStatus()
 	vm := &CommandsViewModel{api, st, btnW, btnR, btnG, w, fMsg}
 	vm.updateView()

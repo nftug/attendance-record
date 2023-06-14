@@ -14,14 +14,14 @@ func NewApi() *Api {
 	return &Api{session: shared.NewSession()}
 }
 
-func (api *Api) ToggleWork() *dto.CurrentTimeStatusDto {
+func (api *Api) ToggleWork() dto.CurrentTimeStatusDto {
 	return usecase.ToggleWork(api.session)
 }
 
-func (api *Api) ToggleRest() *dto.CurrentTimeStatusDto {
+func (api *Api) ToggleRest() dto.CurrentTimeStatusDto {
 	return usecase.ToggleRest(api.session)
 }
 
-func (api *Api) GetCurrentStatus() *dto.CurrentTimeStatusDto {
+func (api *Api) GetCurrentStatus() dto.CurrentTimeStatusDto {
 	return usecase.GetCurrent(api.session)
 }

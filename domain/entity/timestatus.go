@@ -12,8 +12,8 @@ type TimeStatus struct {
 	EndTime   time.Time // 継続中のフラグを兼ねている
 }
 
-func NewTimeStatus() *TimeStatus {
-	return &TimeStatus{Id: uuid.New(), StartTime: time.Now()}
+func NewTimeStatus() TimeStatus {
+	return TimeStatus{Id: uuid.New(), StartTime: time.Now()}
 }
 
 func (ts TimeStatus) IsActive() bool {
