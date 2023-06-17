@@ -6,19 +6,19 @@ import (
 )
 
 type StatusViewModel struct {
-	tickService *model.StatusTickService
-	WorkTotal   Binding[string]
-	RestTotal   Binding[string]
+	receiver  *model.TimeStatusReceiver
+	WorkTotal Binding[string]
+	RestTotal Binding[string]
 }
 
 func (vm *StatusViewModel) update() {
-	vm.WorkTotal.Set(fmt.Sprintf("総勤務時間: %s", vm.tickService.WorkTotal))
-	vm.RestTotal.Set(fmt.Sprintf("総休憩時間: %s ", vm.tickService.RestTotal))
+	vm.WorkTotal.Set(fmt.Sprintf("総勤務時間: %s", vm.receiver.WorkTotal))
+	vm.RestTotal.Set(fmt.Sprintf("総休憩時間: %s ", vm.receiver.RestTotal))
 }
 
-func NewStatusViewModel(api *model.Api, work Binding[string], rest Binding[string]) *StatusViewModel {
-	vm := &StatusViewModel{nil, work, rest}
-	vm.tickService = model.NewStatusTickService(api, vm.update)
+func NewStatusViewModel(receiver *model.TimeStatusReceiver, work Binding[string], rest Binding[string]) *StatusViewModel {
+	vm := &StatusViewModel{receiver, work, rest}
+	vm.receiver.AddUpdateFunc(vm.update)
 	vm.update()
 	return vm
 }

@@ -10,8 +10,8 @@ type Api struct {
 	session *shared.Session
 }
 
-func NewApi() *Api {
-	return &Api{session: shared.NewSession()}
+func NewApi(session *shared.Session) *Api {
+	return &Api{session}
 }
 
 func (api *Api) ToggleWork() dto.CurrentTimeStatusDto {

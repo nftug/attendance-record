@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewCommands(api *model.Api, w fyne.Window) *fyne.Container {
+func NewCommands(receiver *model.TimeStatusReceiver, w fyne.Window) *fyne.Container {
 	btnWorking := widget.NewButton("", func() {})
 	btnResting := widget.NewButton("", func() {})
 	btnGetCurrent := widget.NewButton("集計", func() {})
@@ -22,7 +22,7 @@ func NewCommands(api *model.Api, w fyne.Window) *fyne.Container {
 		dialog.ShowInformation(title, message, w)
 	}
 
-	vm := viewmodel.NewCommandsViewModel(api, btnWorking, btnResting, btnGetCurrent, w, fMsg)
+	vm := viewmodel.NewCommandsViewModel(receiver, btnWorking, btnResting, btnGetCurrent, w, fMsg)
 	btnWorking.OnTapped = vm.OnPressBtnWorking
 	btnResting.OnTapped = vm.OnPressBtnResting
 	btnGetCurrent.OnTapped = vm.OnPressBtnGetCurrent

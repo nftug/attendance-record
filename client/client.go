@@ -1,7 +1,6 @@
 package client
 
 import (
-	"attendance-record/client/model"
 	"attendance-record/client/resource"
 	"attendance-record/client/view"
 
@@ -9,12 +8,10 @@ import (
 )
 
 func Run() {
-	api := model.NewApi()
-
 	a := app.New()
 	a.Settings().SetTheme(&resource.MyTheme{})
 	w := a.NewWindow("勤怠記録")
 
-	w.SetContent(view.NewWindowContent(api, w))
+	w.SetContent(view.NewWindowContent(w))
 	w.ShowAndRun()
 }

@@ -2,13 +2,11 @@ package viewmodel
 
 import (
 	"attendance-record/client/model"
-	"attendance-record/domain/dto"
 	"fmt"
 )
 
 type CommandsViewModel struct {
-	api           *model.Api
-	model         dto.CurrentTimeStatusDto
+	receiver      *model.TimeStatusReceiver
 	btnWorking    Button
 	btnResting    Button
 	btnGetCurrent Button
@@ -17,30 +15,29 @@ type CommandsViewModel struct {
 }
 
 func NewCommandsViewModel(
-	api *model.Api,
+	receiver *model.TimeStatusReceiver,
 	btnW Button,
 	btnR Button,
 	btnG Button,
 	w Window,
 	fMsg func(string, string)) *CommandsViewModel {
-	st := api.GetCurrentStatus()
-	vm := &CommandsViewModel{api, st, btnW, btnR, btnG, w, fMsg}
+	vm := &CommandsViewModel{receiver, btnW, btnR, btnG, w, fMsg}
+	vm.receiver.AddUpdateFunc(vm.updateView)
 	vm.updateView()
 	return vm
 }
 
 func (vm *CommandsViewModel) OnPressBtnWorking() {
-	vm.model = vm.api.ToggleWork()
-	vm.updateView()
+	vm.receiver.ToggleWork()
 }
 
 func (vm *CommandsViewModel) OnPressBtnResting() {
-	vm.model = vm.api.ToggleRest()
-	vm.updateView()
+	vm.receiver.ToggleRest()
 }
 
 func (vm *CommandsViewModel) OnPressBtnGetCurrent() {
-	s := vm.api.GetCurrentStatus()
+	vm.receiver.SetCurrentStatus()
+	s := vm.receiver.Status
 	msg := fmt.Sprintf("勤務時間: %s\n休憩時間: %s\n", s.Work.TotalTime, s.Rest.TotalTime)
 	vm.fMsg("取得結果", msg)
 }
@@ -51,21 +48,23 @@ func (vm *CommandsViewModel) updateView() {
 }
 
 func (vm *CommandsViewModel) updateByIsActive() {
-	if vm.model.Work.IsActive {
+	s := vm.receiver.Status
+
+	if s.Work.IsActive {
 		vm.btnWorking.SetText("退勤")
 	} else {
 		vm.btnWorking.SetText("出勤")
 	}
 
-	if vm.model.Rest.IsActive {
+	if s.Rest.IsActive {
 		vm.btnResting.SetText("休憩終了")
 	} else {
 		vm.btnResting.SetText("休憩開始")
 	}
 
-	if vm.model.Rest.IsActive {
+	if s.Rest.IsActive {
 		vm.window.SetTitle("勤怠記録 - [休憩中]")
-	} else if vm.model.Work.IsActive {
+	} else if s.Work.IsActive {
 		vm.window.SetTitle("勤怠記録 - [出勤中]")
 	} else {
 		vm.window.SetTitle("勤怠記録")
@@ -73,13 +72,15 @@ func (vm *CommandsViewModel) updateByIsActive() {
 }
 
 func (vm *CommandsViewModel) updateByBtnEnabled() {
-	if vm.model.Work.IsToggleEnabled {
+	s := vm.receiver.Status
+
+	if s.Work.IsToggleEnabled {
 		vm.btnWorking.Enable()
 	} else {
 		vm.btnWorking.Disable()
 	}
 
-	if vm.model.Rest.IsToggleEnabled {
+	if s.Rest.IsToggleEnabled {
 		vm.btnResting.Enable()
 	} else {
 		vm.btnResting.Disable()
