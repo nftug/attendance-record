@@ -20,9 +20,9 @@ func NewTimeStatusService(wr interfaces.IWorkRepository, rr interfaces.IRestRepo
 }
 
 func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) {
-	if t == enum.Work && tss.isActive(enum.Rest) {
+	if t == enum.Work && tss.isActiveByRepository(enum.Rest) {
 		return
-	} else if t == enum.Rest && !tss.isActive(enum.Work) {
+	} else if t == enum.Rest && !tss.isActiveByRepository(enum.Work) {
 		return
 	}
 
@@ -59,19 +59,15 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 
 	return dto.CurrentTimeStatusDto{
 		Work: dto.TimeStatusItemDto{
-			// IsToggleEnabled: !isActiveWithQuery(queryRest),
-			// IsActive:        isActiveWithQuery(queryWork),
-			IsToggleEnabled: !tss.isActive(enum.Rest),
-			IsActive:        tss.isActive(enum.Work),
+			IsToggleEnabled: !isActiveByQuery(queryRest),
+			IsActive:        isActiveByQuery(queryWork),
 			TotalTime:       time.Duration(workTotal - restTotal),
 			StartedOn:       workStartedOn,
 			EndedOn:         workEndedOn,
 		},
 		Rest: dto.TimeStatusItemDto{
-			// IsToggleEnabled: isActiveWithQuery(queryWork),
-			// IsActive:        isActiveWithQuery(queryRest),
-			IsToggleEnabled: tss.isActive(enum.Work),
-			IsActive:        tss.isActive(enum.Rest),
+			IsToggleEnabled: isActiveByQuery(queryWork),
+			IsActive:        isActiveByQuery(queryRest),
 			TotalTime:       time.Duration(restTotal),
 			StartedOn:       restStartedOn,
 			EndedOn:         restEndedOn,
@@ -79,13 +75,13 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 	}
 }
 
-func (tss *TimeStatusService) isActive(t enum.TimeStatusType) bool {
+func (tss *TimeStatusService) isActiveByRepository(t enum.TimeStatusType) bool {
 	l := tss.getRepository(t).GetLatest()
 	return l != nil && l.IsActive()
 }
 
-func isActiveWithQuery(q linq.Query) bool {
-	l, ok := q.First().(entity.TimeStatus)
+func isActiveByQuery(q linq.Query) bool {
+	l, ok := q.Last().(entity.TimeStatus)
 	return ok && l.IsActive()
 }
 

@@ -8,13 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// var instance *gorm.DB
+var instance *gorm.DB
 
 func NewDB() *gorm.DB {
-	var instance *gorm.DB
-
 	if instance == nil {
-		db, err := gorm.Open(sqlite.Open("attendance.db"), &gorm.Config{})
+		db, err := gorm.Open(sqlite.Open("attendance.db"), &gorm.Config{SkipDefaultTransaction: true})
 		if err != nil {
 			log.Fatal("failed to connect database")
 		}

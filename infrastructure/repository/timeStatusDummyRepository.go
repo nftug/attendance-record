@@ -36,14 +36,13 @@ func (r *timeStatusDummyRepository) Update(item entity.TimeStatus) {
 }
 
 func (r *timeStatusDummyRepository) QueryByDate(dt time.Time) linq.Query {
-	today := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.Local)
-	return linq.From(r.data).WhereT(func(x datamodel.TimeStatus) bool {
-		return x.StartTime.After(today)
-	}).OrderByT(orderByPredicate).SelectT(toEntitySelector)
+	predicate := getWhereDayPredicate(dt)
+	return linq.From(r.data).WhereT(predicate).OrderByT(orderByPredicate).SelectT(toEntitySelector)
 }
 
 func (r *timeStatusDummyRepository) GetLatest() *entity.TimeStatus {
-	if l, ok := linq.From(r.data).OrderByT(orderByPredicate).Last().(datamodel.TimeStatus); ok {
+	predicate := getWhereDayPredicate(time.Now())
+	if l, ok := linq.From(r.data).WhereT(predicate).OrderByT(orderByPredicate).Last().(datamodel.TimeStatus); ok {
 		p := l.ToEntity()
 		return &p
 	} else {
@@ -55,6 +54,9 @@ func orderByPredicate(x datamodel.TimeStatus) int64 {
 	return x.StartTime.Unix()
 }
 
-func toEntitySelector(x datamodel.TimeStatus) entity.TimeStatus {
-	return x.ToEntity()
+func getWhereDayPredicate(dt time.Time) func(datamodel.TimeStatus) bool {
+	today, tomorrow := getDayPair(dt)
+	return func(x datamodel.TimeStatus) bool {
+		return x.StartTime.After(today) && x.StartTime.Before(tomorrow)
+	}
 }
