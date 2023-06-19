@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewCommands(receiver *model.TimeStatusReceiver, w fyne.Window) *fyne.Container {
+func NewCommandsView(receiver *model.TimeStatusReceiver, w fyne.Window) *fyne.Container {
 	btnWorking := widget.NewButton("", func() {})
 	btnResting := widget.NewButton("", func() {})
 	btnGetCurrent := widget.NewButton("集計", func() {})

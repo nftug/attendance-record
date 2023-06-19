@@ -10,6 +10,10 @@ import (
 type TimeStatusView struct{ *fyne.Container }
 
 func NewTimeStatusView(w fyne.Window, r *model.TimeStatusReceiver) *TimeStatusView {
-	c := container.NewVBox(NewClock(), NewCommands(r, w), NewStatus(r))
+	c := container.NewVBox(
+		NewClockView(),
+		NewCommandsView(r, w),
+		NewStatusView(r),
+	)
 	return &TimeStatusView{c}
 }

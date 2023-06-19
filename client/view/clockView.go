@@ -5,18 +5,18 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 )
 
-func NewClock() *canvas.Text {
+func NewClockView() *fyne.Container {
 	clock := canvas.NewText("", theme.ForegroundColor())
 	clock.TextSize = 72
-	clock.Alignment = fyne.TextAlignCenter
 
 	viewmodel.UpdateByTick(func(v string) {
 		clock.Text = v
 		clock.Refresh()
 	})
 
-	return clock
+	return container.NewCenter(clock)
 }
