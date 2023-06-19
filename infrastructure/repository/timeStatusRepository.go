@@ -31,16 +31,14 @@ func (r *timeStatusRepository) Create(item entity.TimeStatus) {
 }
 
 func (r *timeStatusRepository) Update(item entity.TimeStatus) {
-	var entity datamodel.TimeStatus
 	updated := datamodel.NewTimeStatusFromEntity(item)
-	r.db.First(&entity, item.Id).Updates(&updated)
+	r.db.First(&datamodel.TimeStatus{}, item.Id).Updates(&updated)
 }
 
 func (r *timeStatusRepository) QueryByDate(dt time.Time) linq.Query {
 	var results []datamodel.TimeStatus
 	day := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.Local)
 	r.db.Where("start_time BETWEEN ? AND ?", day, day.AddDate(0, 0, 1)).Order("start_time").Find(&results)
-
 	return linq.From(results).SelectT(toEntitySelector)
 }
 
