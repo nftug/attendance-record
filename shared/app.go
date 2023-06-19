@@ -2,10 +2,15 @@ package shared
 
 import "attendance-record/usecase"
 
+var app *App
+
 type App struct {
 	TimeStatusUseCase *usecase.TimeStatusUseCase
 }
 
-func NewApp(tsUseCase *usecase.TimeStatusUseCase) *App {
-	return &App{TimeStatusUseCase: tsUseCase}
+func NewAppSingleton(tsUseCase *usecase.TimeStatusUseCase) *App {
+	if app == nil {
+		app = &App{TimeStatusUseCase: tsUseCase}
+	}
+	return app
 }

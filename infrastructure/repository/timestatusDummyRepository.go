@@ -2,12 +2,21 @@ package repository
 
 import (
 	"attendance-record/domain/entity"
+	"attendance-record/domain/interfaces"
 	"attendance-record/infrastructure/datamodel"
 	"log"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
 )
+
+func NewWorkDummyRepository() interfaces.WorkRepository {
+	return &timeStatusDummyRepository{}
+}
+
+func NewRestDummyRepository() interfaces.RestRepository {
+	return &timeStatusDummyRepository{}
+}
 
 type timeStatusDummyRepository struct {
 	data []datamodel.TimeStatus

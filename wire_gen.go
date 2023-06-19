@@ -7,7 +7,6 @@
 package main
 
 import (
-	"attendance-record/client"
 	"attendance-record/domain/service"
 	"attendance-record/infrastructure/repository"
 	"attendance-record/shared"
@@ -21,11 +20,6 @@ func initApp() *shared.App {
 	restRepository := repository.NewRestDummyRepository()
 	timeStatusService := service.NewTimeStatusService(workRepository, restRepository)
 	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
-	app := shared.NewApp(timeStatusUseCase)
+	app := shared.NewAppSingleton(timeStatusUseCase)
 	return app
-}
-
-func initClient(a *shared.App) *client.Client {
-	clientClient := client.NewClient(a)
-	return clientClient
 }

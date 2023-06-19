@@ -8,8 +8,7 @@ import (
 )
 
 var Set = wire.NewSet(
-	model.NewApi,
+	model.NewLocalApi,
 	model.NewTimeStatusReceiverSingleton,
 	view.NewTimeStatusView,
-	NewClient,
 )

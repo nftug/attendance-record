@@ -78,7 +78,7 @@ func (tss *TimeStatusService) isActive(t enum.TimeStatusType) bool {
 	return l != nil && l.IsActive()
 }
 
-func (tss *TimeStatusService) getRepository(t enum.TimeStatusType) interfaces.TimeStatusRepository {
+func (tss *TimeStatusService) getRepository(t enum.TimeStatusType) interfaces.ITimeStatusRepository {
 	if t == enum.Work {
 		return tss.workRepository
 	} else if t == enum.Rest {

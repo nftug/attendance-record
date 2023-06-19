@@ -11,7 +11,7 @@ import (
 	"github.com/google/wire"
 )
 
-func initTimeStatusView(w fyne.Window, a *shared.App) *view.TimeStatusView {
-	wire.Build(Set)
+func initTimeStatusView(w fyne.Window) *view.TimeStatusView {
+	wire.Build(Set, shared.Set)
 	return nil
 }

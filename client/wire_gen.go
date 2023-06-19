@@ -9,15 +9,23 @@ package client
 import (
 	"attendance-record/client/model"
 	"attendance-record/client/view"
+	"attendance-record/domain/service"
+	"attendance-record/infrastructure/repository"
 	"attendance-record/shared"
+	"attendance-record/usecase"
 	"fyne.io/fyne/v2"
 )
 
 // Injectors from wire.go:
 
-func initTimeStatusView(w fyne.Window, a *shared.App) *view.TimeStatusView {
-	api := model.NewApi(a)
-	timeStatusReceiver := model.NewTimeStatusReceiverSingleton(api)
+func initTimeStatusView(w fyne.Window) *view.TimeStatusView {
+	workRepository := repository.NewWorkDummyRepository()
+	restRepository := repository.NewRestDummyRepository()
+	timeStatusService := service.NewTimeStatusService(workRepository, restRepository)
+	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
+	app := shared.NewAppSingleton(timeStatusUseCase)
+	iTimeStatusApi := model.NewLocalApi(app)
+	timeStatusReceiver := model.NewTimeStatusReceiverSingleton(iTimeStatusApi)
 	timeStatusView := view.NewTimeStatusView(w, timeStatusReceiver)
 	return timeStatusView
 }

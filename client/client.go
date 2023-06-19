@@ -2,22 +2,13 @@ package client
 
 import (
 	"attendance-record/client/resource"
-	"attendance-record/shared"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/driver/desktop"
 )
 
-type Client struct {
-	app *shared.App
-}
-
-func NewClient(app *shared.App) *Client {
-	return &Client{app: app}
-}
-
-func (c *Client) Run() {
+func Run() {
 	a := app.New()
 	a.Settings().SetTheme(&resource.MyTheme{})
 	w := a.NewWindow("勤怠記録")
@@ -31,7 +22,7 @@ func (c *Client) Run() {
 	}
 	w.SetCloseIntercept(func() { w.Hide() })
 
-	v := initTimeStatusView(w, c.app)
+	v := initTimeStatusView(w)
 	w.SetContent(v.Container)
 	w.ShowAndRun()
 }

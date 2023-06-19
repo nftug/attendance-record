@@ -8,14 +8,14 @@ import (
 var instance *TimeStatusReceiver
 
 type TimeStatusReceiver struct {
-	api       *Api
+	api       ITimeStatusApi
 	Status    dto.CurrentTimeStatusDto
 	WorkTotal time.Duration
 	RestTotal time.Duration
 	update    []func()
 }
 
-func NewTimeStatusReceiverSingleton(api *Api) *TimeStatusReceiver {
+func NewTimeStatusReceiverSingleton(api ITimeStatusApi) *TimeStatusReceiver {
 	if instance == nil {
 		status := api.GetCurrentStatus()
 		instance = &TimeStatusReceiver{api, status, status.Work.TotalTime, status.Rest.TotalTime, []func(){}}

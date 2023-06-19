@@ -1,5 +1,11 @@
 package shared
 
-import "github.com/google/wire"
+import (
+	"attendance-record/domain"
+	"attendance-record/infrastructure"
+	"attendance-record/usecase"
 
-var Set = wire.NewSet(NewApp)
+	"github.com/google/wire"
+)
+
+var Set = wire.NewSet(NewAppSingleton, domain.Set, infrastructure.Set, usecase.Set)
