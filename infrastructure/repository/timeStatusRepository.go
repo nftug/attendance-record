@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -37,18 +36,17 @@ func (r *timeStatusRepository) Update(item entity.TimeStatus) {
 
 func (r *timeStatusRepository) QueryByDate(dt time.Time) linq.Query {
 	var results []datamodel.TimeStatus
-	day := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.Local)
-	r.db.Where("start_time BETWEEN ? AND ?", day, day.AddDate(0, 0, 1)).Order("start_time").Find(&results)
+	today, tomorrow := getDayPair(dt)
+	r.db.Where("start_time BETWEEN ? AND ?", today, tomorrow).Find(&results)
 	return linq.From(results).SelectT(toEntitySelector)
 }
 
 func (r *timeStatusRepository) GetLatest() *entity.TimeStatus {
 	var entity datamodel.TimeStatus
-	dt := time.Now()
-	day := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, time.Local)
-	r.db.Where("start_time BETWEEN ? AND ?", day, day.AddDate(0, 0, 1)).Order("start_time DESC").FirstOrInit(&entity)
+	today, tomorrow := getDayPair(time.Now())
+	r.db.Where("start_time BETWEEN ? AND ?", today, tomorrow).Order("start_time DESC").FirstOrInit(&entity)
 
-	if entity.ID != *new(uuid.UUID) {
+	if entity != *new(datamodel.TimeStatus) {
 		p := entity.ToEntity()
 		return &p
 	} else {
