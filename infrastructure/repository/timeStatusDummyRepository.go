@@ -10,11 +10,11 @@ import (
 	"github.com/ahmetb/go-linq/v3"
 )
 
-func NewWorkDummyRepository() interfaces.WorkRepository {
+func NewWorkDummyRepository() interfaces.IWorkRepository {
 	return &timeStatusDummyRepository{}
 }
 
-func NewRestDummyRepository() interfaces.RestRepository {
+func NewRestDummyRepository() interfaces.IRestRepository {
 	return &timeStatusDummyRepository{}
 }
 

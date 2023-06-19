@@ -7,13 +7,10 @@ import (
 	"fyne.io/fyne/v2/container"
 )
 
-type TimeStatusView struct{ *fyne.Container }
-
-func NewTimeStatusView(w fyne.Window, r *model.TimeStatusReceiver) *TimeStatusView {
-	c := container.NewVBox(
+func NewTimeStatusView(w fyne.Window, r *model.TimeStatusReceiver) *fyne.Container {
+	return container.NewVBox(
 		NewClockView(),
 		NewCommandsView(r, w),
 		NewStatusView(r),
 	)
-	return &TimeStatusView{c}
 }

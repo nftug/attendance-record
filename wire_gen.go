@@ -7,6 +7,8 @@
 package main
 
 import (
+	"attendance-record/client"
+	"attendance-record/client/model"
 	"attendance-record/domain/service"
 	"attendance-record/infrastructure/repository"
 	"attendance-record/shared"
@@ -16,10 +18,22 @@ import (
 // Injectors from wire.go:
 
 func initApp() *shared.App {
-	workRepository := repository.NewWorkDummyRepository()
-	restRepository := repository.NewRestDummyRepository()
-	timeStatusService := service.NewTimeStatusService(workRepository, restRepository)
+	iWorkRepository := repository.NewWorkDummyRepository()
+	iRestRepository := repository.NewRestDummyRepository()
+	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)
 	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
 	app := shared.NewAppSingleton(timeStatusUseCase)
 	return app
+}
+
+func initClient() *client.Client {
+	iWorkRepository := repository.NewWorkDummyRepository()
+	iRestRepository := repository.NewRestDummyRepository()
+	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)
+	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
+	app := shared.NewAppSingleton(timeStatusUseCase)
+	iTimeStatusApi := model.NewLocalApi(app)
+	timeStatusReceiver := model.NewTimeStatusReceiverSingleton(iTimeStatusApi)
+	clientClient := client.NewClient(timeStatusReceiver)
+	return clientClient
 }

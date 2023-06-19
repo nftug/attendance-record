@@ -1,7 +1,6 @@
 package main
 
-import "attendance-record/client"
-
 func main() {
-	client.Run()
+	c := initClient()
+	c.Run()
 }

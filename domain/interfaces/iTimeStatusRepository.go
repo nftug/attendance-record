@@ -14,6 +14,6 @@ type ITimeStatusRepository interface {
 	GetLatest() *entity.TimeStatus
 }
 
-type WorkRepository ITimeStatusRepository
+type IWorkRepository ITimeStatusRepository
 
-type RestRepository ITimeStatusRepository
+type IRestRepository ITimeStatusRepository
