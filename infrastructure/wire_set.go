@@ -6,7 +6,13 @@ import (
 	"github.com/google/wire"
 )
 
-var Set = wire.NewSet(
+var DummySet = wire.NewSet(
 	repository.NewWorkDummyRepository,
 	repository.NewRestDummyRepository,
+)
+
+var Set = wire.NewSet(
+	repository.NewWorkRepository,
+	repository.NewRestRepository,
+	NewDB,
 )

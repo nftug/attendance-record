@@ -20,7 +20,8 @@ func NewCommandsViewModel(
 	btnR Button,
 	btnG Button,
 	w Window,
-	fMsg func(string, string)) *CommandsViewModel {
+	fMsg func(string, string),
+) *CommandsViewModel {
 	vm := &CommandsViewModel{receiver, btnW, btnR, btnG, w, fMsg}
 	vm.receiver.AddUpdateFunc(vm.updateView)
 	vm.updateView()

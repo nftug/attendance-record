@@ -6,7 +6,7 @@ import (
 	"github.com/google/wire"
 )
 
-var Set = wire.NewSet(
+var LocalSet = wire.NewSet(
 	model.NewLocalApi,
 	model.NewTimeStatusReceiverSingleton,
 	NewClient,

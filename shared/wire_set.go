@@ -8,4 +8,9 @@ import (
 	"github.com/google/wire"
 )
 
-var Set = wire.NewSet(NewAppSingleton, domain.Set, infrastructure.Set, usecase.Set)
+var Set = wire.NewSet(
+	NewAppSingleton,
+	domain.Set,
+	infrastructure.Set,
+	usecase.Set,
+)

@@ -6,6 +6,8 @@ import (
 	"attendance-record/domain/enum"
 	"attendance-record/domain/interfaces"
 	"time"
+
+	"github.com/ahmetb/go-linq/v3"
 )
 
 type TimeStatusService struct {
@@ -57,6 +59,8 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 
 	return dto.CurrentTimeStatusDto{
 		Work: dto.TimeStatusItemDto{
+			// IsToggleEnabled: !isActiveWithQuery(queryRest),
+			// IsActive:        isActiveWithQuery(queryWork),
 			IsToggleEnabled: !tss.isActive(enum.Rest),
 			IsActive:        tss.isActive(enum.Work),
 			TotalTime:       time.Duration(workTotal - restTotal),
@@ -64,6 +68,8 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 			EndedOn:         workEndedOn,
 		},
 		Rest: dto.TimeStatusItemDto{
+			// IsToggleEnabled: isActiveWithQuery(queryWork),
+			// IsActive:        isActiveWithQuery(queryRest),
 			IsToggleEnabled: tss.isActive(enum.Work),
 			IsActive:        tss.isActive(enum.Rest),
 			TotalTime:       time.Duration(restTotal),
@@ -76,6 +82,11 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 func (tss *TimeStatusService) isActive(t enum.TimeStatusType) bool {
 	l := tss.getRepository(t).GetLatest()
 	return l != nil && l.IsActive()
+}
+
+func isActiveWithQuery(q linq.Query) bool {
+	l, ok := q.First().(entity.TimeStatus)
+	return ok && l.IsActive()
 }
 
 func (tss *TimeStatusService) getRepository(t enum.TimeStatusType) interfaces.ITimeStatusRepository {
