@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+var instance *TimeStatusReceiver
+
 type TimeStatusReceiver struct {
 	api       *Api
 	Status    dto.CurrentTimeStatusDto
@@ -13,11 +15,13 @@ type TimeStatusReceiver struct {
 	update    []func()
 }
 
-func NewTimeStatusReceiver(api *Api) *TimeStatusReceiver {
-	status := api.GetCurrentStatus()
-	s := &TimeStatusReceiver{api, status, status.Work.TotalTime, status.Rest.TotalTime, []func(){}}
-	s.StartUpdateTick()
-	return s
+func NewTimeStatusReceiverSingleton(api *Api) *TimeStatusReceiver {
+	if instance == nil {
+		status := api.GetCurrentStatus()
+		instance = &TimeStatusReceiver{api, status, status.Work.TotalTime, status.Rest.TotalTime, []func(){}}
+		instance.StartUpdateTick()
+	}
+	return instance
 }
 
 func (s *TimeStatusReceiver) AddUpdateFunc(f func()) {

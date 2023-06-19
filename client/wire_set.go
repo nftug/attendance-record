@@ -9,7 +9,7 @@ import (
 
 var Set = wire.NewSet(
 	model.NewApi,
-	model.NewTimeStatusReceiver,
+	model.NewTimeStatusReceiverSingleton,
 	view.NewTimeStatusView,
 	NewClient,
 )

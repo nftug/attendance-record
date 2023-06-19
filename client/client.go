@@ -31,8 +31,7 @@ func (c *Client) Run() {
 	}
 	w.SetCloseIntercept(func() { w.Hide() })
 
-	r := initTimeStatusReceiver(c.app)
-	v := initTimeStatusView(w, r)
+	v := initTimeStatusView(w, c.app)
 	w.SetContent(v.Container)
 	w.ShowAndRun()
 }

@@ -15,13 +15,9 @@ import (
 
 // Injectors from wire.go:
 
-func initTimeStatusView(w fyne.Window, r *model.TimeStatusReceiver) *view.TimeStatusView {
-	timeStatusView := view.NewTimeStatusView(w, r)
-	return timeStatusView
-}
-
-func initTimeStatusReceiver(a *shared.App) *model.TimeStatusReceiver {
+func initTimeStatusView(w fyne.Window, a *shared.App) *view.TimeStatusView {
 	api := model.NewApi(a)
-	timeStatusReceiver := model.NewTimeStatusReceiver(api)
-	return timeStatusReceiver
+	timeStatusReceiver := model.NewTimeStatusReceiverSingleton(api)
+	timeStatusView := view.NewTimeStatusView(w, timeStatusReceiver)
+	return timeStatusView
 }

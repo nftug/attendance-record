@@ -4,7 +4,6 @@
 package client
 
 import (
-	"attendance-record/client/model"
 	"attendance-record/client/view"
 	"attendance-record/shared"
 
@@ -12,12 +11,7 @@ import (
 	"github.com/google/wire"
 )
 
-func initTimeStatusView(w fyne.Window, r *model.TimeStatusReceiver) *view.TimeStatusView {
-	wire.Build(view.NewTimeStatusView)
-	return nil
-}
-
-func initTimeStatusReceiver(a *shared.App) *model.TimeStatusReceiver {
+func initTimeStatusView(w fyne.Window, a *shared.App) *view.TimeStatusView {
 	wire.Build(Set)
 	return nil
 }
