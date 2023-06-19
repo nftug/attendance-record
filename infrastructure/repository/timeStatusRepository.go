@@ -5,6 +5,7 @@ import (
 	"attendance-record/domain/enum"
 	"attendance-record/domain/interfaces"
 	"attendance-record/infrastructure/datamodel"
+	"attendance-record/shared/util"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
@@ -43,7 +44,7 @@ func (r *timeStatusRepository) QueryByDate(dt time.Time) linq.Query {
 
 func (r *timeStatusRepository) GetLatest() *entity.TimeStatus {
 	var entity datamodel.TimeStatus
-	today, tomorrow := getDayPair(time.Now())
+	today, tomorrow := getDayPair(util.GetNowDateTime())
 	r.db.Where("start_time BETWEEN ? AND ?", today, tomorrow).Order("start_time DESC").FirstOrInit(&entity)
 
 	if entity != *new(datamodel.TimeStatus) {

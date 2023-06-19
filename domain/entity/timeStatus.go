@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"attendance-record/shared/util"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ type TimeStatus struct {
 }
 
 func NewTimeStatus() TimeStatus {
-	return TimeStatus{Id: uuid.New(), StartTime: time.Now()}
+	return TimeStatus{Id: uuid.New(), StartTime: util.GetNowDateTime()}
 }
 
 func (ts TimeStatus) IsActive() bool {
@@ -21,7 +22,7 @@ func (ts TimeStatus) IsActive() bool {
 }
 
 func (ts *TimeStatus) End() {
-	ts.EndTime = time.Now()
+	ts.EndTime = util.GetNowDateTime()
 }
 
 func (ts TimeStatus) TotalTime(now time.Time) time.Duration {

@@ -4,6 +4,7 @@ import (
 	"attendance-record/domain/entity"
 	"attendance-record/domain/interfaces"
 	"attendance-record/infrastructure/datamodel"
+	"attendance-record/shared/util"
 	"log"
 	"time"
 
@@ -41,7 +42,7 @@ func (r *timeStatusDummyRepository) QueryByDate(dt time.Time) linq.Query {
 }
 
 func (r *timeStatusDummyRepository) GetLatest() *entity.TimeStatus {
-	predicate := getWhereDayPredicate(time.Now())
+	predicate := getWhereDayPredicate(util.GetNowDateTime())
 	if l, ok := linq.From(r.data).WhereT(predicate).OrderByT(orderByPredicate).Last().(datamodel.TimeStatus); ok {
 		p := l.ToEntity()
 		return &p

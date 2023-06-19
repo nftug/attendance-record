@@ -5,6 +5,7 @@ import (
 	"attendance-record/domain/entity"
 	"attendance-record/domain/enum"
 	"attendance-record/domain/interfaces"
+	"attendance-record/shared/util"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
@@ -38,7 +39,7 @@ func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) {
 func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 	var workStartedOn, workEndedOn, restStartedOn, restEndedOn time.Time
 
-	now := time.Now()
+	now := util.GetNowDateTime()
 	queryWork := tss.workRepository.QueryByDate(now)
 	queryRest := tss.restRepository.QueryByDate(now)
 	selTotal := func(x entity.TimeStatus) int64 { return int64(x.TotalTime(now)) }
