@@ -7,21 +7,21 @@ import (
 )
 
 type Api struct {
-	session *shared.Session
+	usecase *usecase.TimeStatusUseCase
 }
 
-func NewApi(session *shared.Session) *Api {
-	return &Api{session}
+func NewApi(a *shared.App) *Api {
+	return &Api{usecase: a.TimeStatusUseCase}
 }
 
 func (api *Api) ToggleWork() dto.CurrentTimeStatusDto {
-	return usecase.ToggleWork(api.session)
+	return api.usecase.ToggleWork()
 }
 
 func (api *Api) ToggleRest() dto.CurrentTimeStatusDto {
-	return usecase.ToggleRest(api.session)
+	return api.usecase.ToggleRest()
 }
 
 func (api *Api) GetCurrentStatus() dto.CurrentTimeStatusDto {
-	return usecase.GetCurrent(api.session)
+	return api.usecase.GetCurrent()
 }

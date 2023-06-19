@@ -2,7 +2,6 @@ package repository
 
 import (
 	"attendance-record/domain/entity"
-	"attendance-record/domain/interfaces"
 	"attendance-record/infrastructure/datamodel"
 	"log"
 	"time"
@@ -12,10 +11,6 @@ import (
 
 type timeStatusDummyRepository struct {
 	data []datamodel.TimeStatus
-}
-
-func NewTimeStatusDummyRepository() interfaces.TimeStatusRepository {
-	return &timeStatusDummyRepository{}
 }
 
 func (r *timeStatusDummyRepository) Create(item entity.TimeStatus) {

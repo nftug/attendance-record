@@ -3,19 +3,27 @@ package usecase
 import (
 	"attendance-record/domain/dto"
 	"attendance-record/domain/enum"
-	"attendance-record/shared"
+	"attendance-record/domain/service"
 )
 
-func ToggleWork(session *shared.Session) dto.CurrentTimeStatusDto {
-	session.TimeStatusService.ToggleState(enum.Work)
-	return session.TimeStatusService.GetCurrent()
+type TimeStatusUseCase struct {
+	service *service.TimeStatusService
 }
 
-func ToggleRest(session *shared.Session) dto.CurrentTimeStatusDto {
-	session.TimeStatusService.ToggleState(enum.Rest)
-	return session.TimeStatusService.GetCurrent()
+func NewTimeStatusUseCase(service *service.TimeStatusService) *TimeStatusUseCase {
+	return &TimeStatusUseCase{service: service}
 }
 
-func GetCurrent(session *shared.Session) dto.CurrentTimeStatusDto {
-	return session.TimeStatusService.GetCurrent()
+func (u *TimeStatusUseCase) ToggleWork() dto.CurrentTimeStatusDto {
+	u.service.ToggleState(enum.Work)
+	return u.service.GetCurrent()
+}
+
+func (u *TimeStatusUseCase) ToggleRest() dto.CurrentTimeStatusDto {
+	u.service.ToggleState(enum.Rest)
+	return u.service.GetCurrent()
+}
+
+func (u *TimeStatusUseCase) GetCurrent() dto.CurrentTimeStatusDto {
+	return u.service.GetCurrent()
 }

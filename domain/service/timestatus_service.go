@@ -9,11 +9,11 @@ import (
 )
 
 type TimeStatusService struct {
-	workRepository interfaces.TimeStatusRepository
-	restRepository interfaces.TimeStatusRepository
+	workRepository interfaces.WorkRepository
+	restRepository interfaces.RestRepository
 }
 
-func NewTimeStatusService(wr interfaces.TimeStatusRepository, rr interfaces.TimeStatusRepository) *TimeStatusService {
+func NewTimeStatusService(wr interfaces.WorkRepository, rr interfaces.RestRepository) *TimeStatusService {
 	return &TimeStatusService{wr, rr}
 }
 

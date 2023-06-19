@@ -13,3 +13,7 @@ type TimeStatusRepository interface {
 	QueryByDate(dt time.Time) linq.Query
 	GetLatest() *entity.TimeStatus
 }
+
+type WorkRepository TimeStatusRepository
+
+type RestRepository TimeStatusRepository
