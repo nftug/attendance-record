@@ -39,11 +39,11 @@ func (vm *CommandsViewModel) OnPressBtnResting() {
 	vm.receiver.ToggleRest()
 }
 
-func (vm *CommandsViewModel) OnPressBtnGetCurrent() {
+func (vm *CommandsViewModel) OnPressBtnSync() {
 	vm.receiver.SetCurrentStatus()
 	s := vm.receiver.Status
 	msg := fmt.Sprintf("勤務時間: %s\n休憩時間: %s\n", s.Work.TotalTime, s.Rest.TotalTime)
-	vm.fMsg("取得結果", msg)
+	vm.fMsg("同期しました", msg)
 }
 
 func (vm *CommandsViewModel) updateView() {
@@ -53,6 +53,7 @@ func (vm *CommandsViewModel) updateView() {
 
 func (vm *CommandsViewModel) updateByIsActive() {
 	<-cticker.New(time.Second, 100*time.Millisecond).C
+
 	s := vm.receiver.Status
 
 	if s.Work.IsActive {
@@ -78,6 +79,7 @@ func (vm *CommandsViewModel) updateByIsActive() {
 
 func (vm *CommandsViewModel) updateByBtnEnabled() {
 	<-cticker.New(time.Second, 100*time.Millisecond).C
+
 	s := vm.receiver.Status
 
 	if s.Work.IsToggleEnabled {

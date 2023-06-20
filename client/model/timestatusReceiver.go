@@ -65,5 +65,7 @@ func (s *TimeStatusReceiver) ToggleRest() {
 
 func (s *TimeStatusReceiver) SetCurrentStatus() {
 	s.Status = s.api.GetCurrentStatus()
+	s.WorkTotal = s.Status.Work.TotalTime
+	s.RestTotal = s.Status.Rest.TotalTime
 	s.InvokeUpdate()
 }

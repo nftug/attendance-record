@@ -14,7 +14,7 @@ import (
 func NewCommandsView(receiver *model.TimeStatusReceiver, w fyne.Window) *fyne.Container {
 	btnWorking := widget.NewButton("", func() {})
 	btnResting := widget.NewButton("", func() {})
-	btnGetCurrent := widget.NewButton("集計", func() {})
+	btnSync := widget.NewButton("同期", func() {})
 	btnReset := widget.NewButton("リセット", func() {})
 	btnReset.Disable()
 
@@ -22,16 +22,16 @@ func NewCommandsView(receiver *model.TimeStatusReceiver, w fyne.Window) *fyne.Co
 		dialog.ShowInformation(title, message, w)
 	}
 
-	vm := viewmodel.NewCommandsViewModel(receiver, btnWorking, btnResting, btnGetCurrent, w, fMsg)
+	vm := viewmodel.NewCommandsViewModel(receiver, btnWorking, btnResting, btnSync, w, fMsg)
 	btnWorking.OnTapped = vm.OnPressBtnWorking
 	btnResting.OnTapped = vm.OnPressBtnResting
-	btnGetCurrent.OnTapped = vm.OnPressBtnGetCurrent
+	btnSync.OnTapped = vm.OnPressBtnSync
 
 	return container.New(
 		layout.NewGridLayoutWithColumns(2),
 		btnWorking,
 		btnResting,
-		btnGetCurrent,
+		btnSync,
 		btnReset,
 	)
 }
