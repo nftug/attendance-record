@@ -10,7 +10,7 @@ var Set = wire.NewSet(
 	// For dummy
 	// repository.NewWorkDummyRepository,
 	// repository.NewRestDummyRepository,
-	repository.NewWorkRepository,
-	repository.NewRestRepository,
+	repository.NewWorkSqlRepository,
+	repository.NewRestSqlRepository,
 	NewDBSingleton,
 )

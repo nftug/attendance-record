@@ -12,29 +12,29 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewWorkRepository(db *gorm.DB) interfaces.IWorkRepository {
-	return &timeStatusRepository{db: getDbModel(db, enum.Work)}
+func NewWorkSqlRepository(db *gorm.DB) interfaces.IWorkRepository {
+	return &timeStatusSqlRepository{db: getDbModel(db, enum.Work)}
 }
 
-func NewRestRepository(db *gorm.DB) interfaces.IRestRepository {
-	return &timeStatusRepository{db: getDbModel(db, enum.Rest)}
+func NewRestSqlRepository(db *gorm.DB) interfaces.IRestRepository {
+	return &timeStatusSqlRepository{db: getDbModel(db, enum.Rest)}
 }
 
-type timeStatusRepository struct {
+type timeStatusSqlRepository struct {
 	db *gorm.DB
 }
 
-func (r *timeStatusRepository) Create(item entity.TimeStatus) {
+func (r *timeStatusSqlRepository) Create(item entity.TimeStatus) {
 	d := datamodel.NewTimeStatusFromEntity(item)
 	r.db.Create(&d)
 }
 
-func (r *timeStatusRepository) Update(item entity.TimeStatus) {
+func (r *timeStatusSqlRepository) Update(item entity.TimeStatus) {
 	updated := datamodel.NewTimeStatusFromEntity(item)
 	r.db.First(&datamodel.TimeStatus{}, item.Id).Updates(&updated)
 }
 
-func (r *timeStatusRepository) QueryByDate(dt time.Time) linq.Query {
+func (r *timeStatusSqlRepository) QueryByDate(dt time.Time) linq.Query {
 	var results []datamodel.TimeStatus
 	today, tomorrow := getDayPair(dt)
 	r.db.
@@ -44,7 +44,7 @@ func (r *timeStatusRepository) QueryByDate(dt time.Time) linq.Query {
 	return linq.From(results).SelectT(toEntitySelector)
 }
 
-func (r *timeStatusRepository) GetLatest() *entity.TimeStatus {
+func (r *timeStatusSqlRepository) GetLatest() *entity.TimeStatus {
 	var entity datamodel.TimeStatus
 	today, tomorrow := getDayPair(util.GetNowDateTime())
 	r.db.

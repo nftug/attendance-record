@@ -20,8 +20,8 @@ import (
 
 func initApp() *shared.App {
 	db := infrastructure.NewDBSingleton()
-	iWorkRepository := repository.NewWorkRepository(db)
-	iRestRepository := repository.NewRestRepository(db)
+	iWorkRepository := repository.NewWorkSqlRepository(db)
+	iRestRepository := repository.NewRestSqlRepository(db)
 	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)
 	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
 	app := shared.NewAppSingleton(timeStatusUseCase)
@@ -30,8 +30,8 @@ func initApp() *shared.App {
 
 func initClient() *client.Client {
 	db := infrastructure.NewDBSingleton()
-	iWorkRepository := repository.NewWorkRepository(db)
-	iRestRepository := repository.NewRestRepository(db)
+	iWorkRepository := repository.NewWorkSqlRepository(db)
+	iRestRepository := repository.NewRestSqlRepository(db)
 	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)
 	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
 	app := shared.NewAppSingleton(timeStatusUseCase)
