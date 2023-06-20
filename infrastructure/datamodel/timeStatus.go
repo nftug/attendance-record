@@ -21,5 +21,9 @@ func (d *TimeStatus) ToEntity() entity.TimeStatus {
 	return entity.TimeStatus{Id: d.Id, StartTime: d.StartTime, EndTime: d.EndTime}
 }
 
+func (d TimeStatus) ID() (jsonField string, value any) {
+	return d.Id.String(), "Id"
+}
+
 type WorkTimeStatus TimeStatus
 type RestTimeStatus TimeStatus

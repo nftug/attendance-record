@@ -39,8 +39,10 @@ func (r *timeStatusDummyRepository) Update(item entity.TimeStatus) {
 }
 
 func (r *timeStatusDummyRepository) QueryByDate(dt time.Time) linq.Query {
-	predicate := getWhereDayPredicate(dt)
-	return linq.From(r.data).WhereT(predicate).OrderByT(orderByPredicate).SelectT(toEntitySelector)
+	return linq.From(r.data).
+		WhereT(getWhereDayPredicate(dt)).
+		OrderByT(orderByPredicate).
+		SelectT(toEntitySelector)
 }
 
 func (r *timeStatusDummyRepository) GetLatest() *entity.TimeStatus {
