@@ -19,7 +19,7 @@ import (
 // Injectors from wire.go:
 
 func initApp() *shared.App {
-	db := infrastructure.NewDB()
+	db := infrastructure.NewDBSingleton()
 	iWorkRepository := repository.NewWorkRepository(db)
 	iRestRepository := repository.NewRestRepository(db)
 	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)
@@ -29,7 +29,7 @@ func initApp() *shared.App {
 }
 
 func initClient() *client.Client {
-	db := infrastructure.NewDB()
+	db := infrastructure.NewDBSingleton()
 	iWorkRepository := repository.NewWorkRepository(db)
 	iRestRepository := repository.NewRestRepository(db)
 	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)

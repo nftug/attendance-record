@@ -2,6 +2,8 @@ package viewmodel
 
 import (
 	"time"
+
+	"github.com/multiplay/go-cticker"
 )
 
 type RenderHandler func(v string)
@@ -14,7 +16,7 @@ func UpdateByTick(f RenderHandler) {
 	updateClock(f)
 
 	go func() {
-		for range time.Tick(time.Second) {
+		for range cticker.New(time.Second, 100*time.Millisecond).C {
 			updateClock(f)
 		}
 	}()

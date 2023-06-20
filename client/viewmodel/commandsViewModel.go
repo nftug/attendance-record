@@ -3,6 +3,9 @@ package viewmodel
 import (
 	"attendance-record/client/model"
 	"fmt"
+	"time"
+
+	"github.com/multiplay/go-cticker"
 )
 
 type CommandsViewModel struct {
@@ -44,11 +47,12 @@ func (vm *CommandsViewModel) OnPressBtnGetCurrent() {
 }
 
 func (vm *CommandsViewModel) updateView() {
-	vm.updateByIsActive()
-	vm.updateByBtnEnabled()
+	go vm.updateByIsActive()
+	go vm.updateByBtnEnabled()
 }
 
 func (vm *CommandsViewModel) updateByIsActive() {
+	<-cticker.New(time.Second, 100*time.Millisecond).C
 	s := vm.receiver.Status
 
 	if s.Work.IsActive {
@@ -73,6 +77,7 @@ func (vm *CommandsViewModel) updateByIsActive() {
 }
 
 func (vm *CommandsViewModel) updateByBtnEnabled() {
+	<-cticker.New(time.Second, 100*time.Millisecond).C
 	s := vm.receiver.Status
 
 	if s.Work.IsToggleEnabled {

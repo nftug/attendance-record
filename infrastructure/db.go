@@ -10,9 +10,9 @@ import (
 
 var instance *gorm.DB
 
-func NewDB() *gorm.DB {
+func NewDBSingleton() *gorm.DB {
 	if instance == nil {
-		db, err := gorm.Open(sqlite.Open("attendance.db"), &gorm.Config{SkipDefaultTransaction: true})
+		db, err := gorm.Open(sqlite.Open("attendance.db"), &gorm.Config{})
 		if err != nil {
 			log.Fatal("failed to connect database")
 		}
@@ -21,7 +21,6 @@ func NewDB() *gorm.DB {
 			&datamodel.WorkTimeStatus{},
 			&datamodel.RestTimeStatus{},
 		)
-
 		instance = db
 	}
 

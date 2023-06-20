@@ -12,6 +12,5 @@ var Set = wire.NewSet(
 	NewAppSingleton,
 	domain.Set,
 	infrastructure.Set,
-	// infrastructure.DummySet,
 	usecase.Set,
 )

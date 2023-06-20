@@ -14,5 +14,5 @@ var DummySet = wire.NewSet(
 var Set = wire.NewSet(
 	repository.NewWorkRepository,
 	repository.NewRestRepository,
-	NewDB,
+	NewDBSingleton,
 )

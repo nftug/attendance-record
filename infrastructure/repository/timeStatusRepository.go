@@ -22,7 +22,6 @@ func NewRestRepository(db *gorm.DB) interfaces.IRestRepository {
 
 type timeStatusRepository struct {
 	db *gorm.DB
-	interfaces.ITimeStatusRepository
 }
 
 func (r *timeStatusRepository) Create(item entity.TimeStatus) {
@@ -38,7 +37,7 @@ func (r *timeStatusRepository) Update(item entity.TimeStatus) {
 func (r *timeStatusRepository) QueryByDate(dt time.Time) linq.Query {
 	var results []datamodel.TimeStatus
 	today, tomorrow := getDayPair(dt)
-	r.db.Where("start_time BETWEEN ? AND ?", today, tomorrow).Find(&results)
+	r.db.Where("start_time BETWEEN ? AND ?", today, tomorrow).Order("start_time").Find(&results)
 	return linq.From(results).SelectT(toEntitySelector)
 }
 

@@ -16,6 +16,6 @@ func initApp() *shared.App {
 }
 
 func initClient() *client.Client {
-	wire.Build(client.LocalSet, shared.Set)
+	wire.Build(client.Set)
 	return nil
 }

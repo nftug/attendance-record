@@ -3,6 +3,8 @@ package model
 import (
 	"attendance-record/domain/dto"
 	"time"
+
+	"github.com/multiplay/go-cticker"
 )
 
 var instance *TimeStatusReceiver
@@ -24,8 +26,8 @@ func NewTimeStatusReceiverSingleton(api ITimeStatusApi) *TimeStatusReceiver {
 	return instance
 }
 
-func (s *TimeStatusReceiver) AddUpdateFunc(f func()) {
-	s.update = append(s.update, f)
+func (s *TimeStatusReceiver) AddUpdateFunc(f ...func()) {
+	s.update = append(s.update, f...)
 }
 
 func (s *TimeStatusReceiver) InvokeUpdate() {
@@ -36,7 +38,7 @@ func (s *TimeStatusReceiver) InvokeUpdate() {
 
 func (s *TimeStatusReceiver) StartUpdateTick() {
 	go func() {
-		for range time.Tick(time.Second) {
+		for range cticker.New(time.Second, 100*time.Millisecond).C {
 			onTickTimer(s.Status.Work, &s.WorkTotal)
 			onTickTimer(s.Status.Rest, &s.RestTotal)
 			s.InvokeUpdate()
