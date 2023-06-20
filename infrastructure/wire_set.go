@@ -6,12 +6,10 @@ import (
 	"github.com/google/wire"
 )
 
-var DummySet = wire.NewSet(
-	repository.NewWorkDummyRepository,
-	repository.NewRestDummyRepository,
-)
-
 var Set = wire.NewSet(
+	// For dummy
+	// repository.NewWorkDummyRepository,
+	// repository.NewRestDummyRepository,
 	repository.NewWorkRepository,
 	repository.NewRestRepository,
 	NewDBSingleton,

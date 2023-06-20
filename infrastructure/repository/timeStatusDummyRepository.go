@@ -29,7 +29,9 @@ func (r *timeStatusDummyRepository) Create(item entity.TimeStatus) {
 }
 
 func (r *timeStatusDummyRepository) Update(item entity.TimeStatus) {
-	idx := linq.From(r.data).IndexOfT(func(x datamodel.TimeStatus) bool { return x.Id == item.Id })
+	idx := linq.
+		From(r.data).
+		IndexOfT(func(x datamodel.TimeStatus) bool { return x.Id == item.Id })
 	if idx == -1 {
 		log.Fatal("The item with specified id cannot be found.")
 	}
@@ -42,8 +44,10 @@ func (r *timeStatusDummyRepository) QueryByDate(dt time.Time) linq.Query {
 }
 
 func (r *timeStatusDummyRepository) GetLatest() *entity.TimeStatus {
-	predicate := getWhereDayPredicate(util.GetNowDateTime())
-	if l, ok := linq.From(r.data).WhereT(predicate).OrderByT(orderByPredicate).Last().(datamodel.TimeStatus); ok {
+	if l, ok := linq.From(r.data).
+		WhereT(getWhereDayPredicate(util.GetNowDateTime())).
+		OrderByT(orderByPredicate).
+		Last().(datamodel.TimeStatus); ok {
 		p := l.ToEntity()
 		return &p
 	} else {

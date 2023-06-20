@@ -8,7 +8,6 @@ import (
 
 type timeStatusLocalApi struct {
 	usecase *usecase.TimeStatusUseCase
-	ITimeStatusApi
 }
 
 func NewLocalApi(a *shared.App) ITimeStatusApi {

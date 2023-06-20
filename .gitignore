@@ -22,4 +22,7 @@ bin/*
 # vendor/
 
 # Go workspace file
-go.work
+# go.work
+
+# DB file
+*.db
