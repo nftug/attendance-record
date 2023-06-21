@@ -91,24 +91,18 @@ func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
 	now := util.GetNowDateTime()
 
 	type RestDuration struct {
-		// workId uuid.UUID
 		date     time.Time
 		duration time.Duration
 	}
 
 	restDurations := restAll.
 		GroupByT(
-			func(x entity.TimeStatus) time.Time {
-				return util.GetDate(x.StartTime)
-				// return workAll.
-				//	FirstWithT(func(w entity.TimeStatus) bool { return x.StartTime.After(w.StartTime) }).(entity.TimeStatus).Id
-			},
+			func(x entity.TimeStatus) time.Time { return util.GetDate(x.StartTime) },
 			func(x entity.TimeStatus) int64 { return int64(x.TotalTime(now)) },
 		).
 		SelectT(func(x linq.Group) RestDuration {
 			return RestDuration{
-				date: x.Key.(time.Time),
-				// workId:   x.Key.(uuid.UUID),
+				date:     x.Key.(time.Time),
 				duration: time.Duration(linq.From(x.Group).SumInts()),
 			}
 		})
