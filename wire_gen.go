@@ -36,7 +36,6 @@ func initClient() *client.Client {
 	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
 	app := shared.NewAppSingleton(timeStatusUseCase)
 	iTimeStatusApi := model.NewLocalApi(app)
-	timeStatusReceiver := model.NewTimeStatusReceiverSingleton(iTimeStatusApi)
-	clientClient := client.NewClient(timeStatusReceiver)
+	clientClient := client.NewClient(iTimeStatusApi)
 	return clientClient
 }

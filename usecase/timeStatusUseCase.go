@@ -4,6 +4,8 @@ import (
 	"attendance-record/domain/dto"
 	"attendance-record/domain/enum"
 	"attendance-record/domain/service"
+
+	"github.com/google/uuid"
 )
 
 type TimeStatusUseCase struct {
@@ -26,4 +28,16 @@ func (u *TimeStatusUseCase) ToggleRest() dto.CurrentTimeStatusDto {
 
 func (u *TimeStatusUseCase) GetCurrent() dto.CurrentTimeStatusDto {
 	return u.service.GetCurrent()
+}
+
+func (u *TimeStatusUseCase) GetAll() []dto.TimeStatusDto {
+	return u.service.GetAll()
+}
+
+func (u *TimeStatusUseCase) Delete(t enum.TimeStatusType, id uuid.UUID) error {
+	return u.service.Delete(t, id)
+}
+
+func (u *TimeStatusUseCase) Update(t enum.TimeStatusType, id uuid.UUID, cmd dto.TimeStatusCommandDto) error {
+	return u.service.Update(t, id, cmd)
 }

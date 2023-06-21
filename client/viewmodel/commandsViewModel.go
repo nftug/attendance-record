@@ -5,34 +5,48 @@ import (
 	"fmt"
 	"time"
 
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/widget"
 	"github.com/multiplay/go-cticker"
 )
 
 type CommandsViewModel struct {
 	receiver      *model.TimeStatusReceiver
-	btnWorking    Button
-	btnResting    Button
-	btnGetCurrent Button
-	window        Window
-	fMsg          func(string, string)
+	btnWorking    *widget.Button
+	btnResting    *widget.Button
+	btnGetCurrent *widget.Button
+	window        fyne.Window
 }
 
 func NewCommandsViewModel(
 	receiver *model.TimeStatusReceiver,
-	btnW Button,
-	btnR Button,
-	btnG Button,
-	w Window,
-	fMsg func(string, string),
+	btnW *widget.Button,
+	btnR *widget.Button,
+	btnS *widget.Button,
+	w fyne.Window,
 ) *CommandsViewModel {
-	vm := &CommandsViewModel{receiver, btnW, btnR, btnG, w, fMsg}
+	vm := &CommandsViewModel{receiver, btnW, btnR, btnS, w}
 	vm.receiver.AddUpdateFunc(vm.updateView)
 	vm.updateView()
+
+	btnW.OnTapped = vm.OnPressBtnWorking
+	btnR.OnTapped = vm.OnPressBtnResting
+	btnS.OnTapped = vm.OnPressBtnSync
+
 	return vm
 }
 
 func (vm *CommandsViewModel) OnPressBtnWorking() {
-	vm.receiver.ToggleWork()
+	if vm.receiver.Status.Work.IsActive {
+		dialog.ShowConfirm("退勤", "退勤しますか？", func(a bool) {
+			if a {
+				vm.receiver.ToggleWork()
+			}
+		}, vm.window)
+	} else {
+		vm.receiver.ToggleWork()
+	}
 }
 
 func (vm *CommandsViewModel) OnPressBtnResting() {
@@ -43,7 +57,7 @@ func (vm *CommandsViewModel) OnPressBtnSync() {
 	vm.receiver.SetCurrentStatus()
 	s := vm.receiver.Status
 	msg := fmt.Sprintf("勤務時間: %s\n休憩時間: %s\n", s.Work.TotalTime, s.Rest.TotalTime)
-	vm.fMsg("同期しました", msg)
+	dialog.ShowInformation("同期しました", msg, vm.window)
 }
 
 func (vm *CommandsViewModel) updateView() {

@@ -6,9 +6,11 @@ import (
 	"attendance-record/domain/enum"
 	"attendance-record/domain/interfaces"
 	"attendance-record/shared/util"
+	"errors"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/google/uuid"
 )
 
 type TimeStatusService struct {
@@ -20,11 +22,11 @@ func NewTimeStatusService(wr interfaces.IWorkRepository, rr interfaces.IRestRepo
 	return &TimeStatusService{wr, rr}
 }
 
-func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) {
+func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) error {
 	if t == enum.Work && tss.isActiveByRepository(enum.Rest) {
-		return
+		return errors.New("cannot toggle work status")
 	} else if t == enum.Rest && !tss.isActiveByRepository(enum.Work) {
-		return
+		return errors.New("cannot toggle rest status")
 	}
 
 	repo := tss.getRepository(t)
@@ -32,8 +34,15 @@ func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) {
 		item.End()
 		repo.Update(*item)
 	} else {
+		if t == enum.Work &&
+			item != nil &&
+			util.GetDate(item.EndTime) == util.GetDate(time.Now()) {
+			return errors.New("no operation is allowed after leaving work within the same day")
+		}
 		repo.Create(entity.NewTimeStatus())
 	}
+
+	return nil
 }
 
 func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
@@ -59,14 +68,14 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 	}
 
 	return dto.CurrentTimeStatusDto{
-		Work: dto.TimeStatusItemDto{
-			IsToggleEnabled: !isActiveByQuery(queryRest),
+		Work: dto.CurrentTimeStatusItemDto{
+			IsToggleEnabled: isWorkToggleEnabled(queryWork, queryRest),
 			IsActive:        isActiveByQuery(queryWork),
 			TotalTime:       time.Duration(workTotal - restTotal),
 			StartedOn:       workStartedOn,
 			EndedOn:         workEndedOn,
 		},
-		Rest: dto.TimeStatusItemDto{
+		Rest: dto.CurrentTimeStatusItemDto{
 			IsToggleEnabled: isActiveByQuery(queryWork),
 			IsActive:        isActiveByQuery(queryRest),
 			TotalTime:       time.Duration(restTotal),
@@ -74,6 +83,87 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 			EndedOn:         restEndedOn,
 		},
 	}
+}
+
+func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
+	workAll := tss.workRepository.GetAll()
+	restAll := tss.restRepository.GetAll()
+	now := util.GetNowDateTime()
+
+	type RestDuration struct {
+		// workId uuid.UUID
+		date     time.Time
+		duration time.Duration
+	}
+
+	restDurations := restAll.
+		GroupByT(
+			func(x entity.TimeStatus) time.Time {
+				return util.GetDate(x.StartTime)
+				// return workAll.
+				//	FirstWithT(func(w entity.TimeStatus) bool { return x.StartTime.After(w.StartTime) }).(entity.TimeStatus).Id
+			},
+			func(x entity.TimeStatus) int64 { return int64(x.TotalTime(now)) },
+		).
+		SelectT(func(x linq.Group) RestDuration {
+			return RestDuration{
+				date: x.Key.(time.Time),
+				// workId:   x.Key.(uuid.UUID),
+				duration: time.Duration(linq.From(x.Group).SumInts()),
+			}
+		})
+
+	workDtos := workAll.GroupJoinT(
+		restDurations,
+		func(x entity.TimeStatus) time.Time { return util.GetDate(x.StartTime) },
+		func(x RestDuration) time.Time { return x.date },
+		func(o entity.TimeStatus, i []RestDuration) dto.TimeStatusDto {
+			var totalTime time.Duration
+			if len(i) > 0 {
+				totalTime = i[0].duration
+			}
+			return dto.TimeStatusDto{
+				Id:        o.Id,
+				Type:      enum.Work,
+				StartedOn: o.StartTime,
+				EndedOn:   o.EndTime,
+				TotalTime: o.TotalTime(now) - totalTime,
+			}
+		},
+	)
+
+	restDtos := restAll.SelectT(func(x entity.TimeStatus) dto.TimeStatusDto {
+		return dto.TimeStatusDto{
+			Id:        x.Id,
+			Type:      enum.Rest,
+			StartedOn: x.StartTime,
+			EndedOn:   x.EndTime,
+			TotalTime: x.TotalTime(now),
+		}
+	})
+
+	workDtos.
+		Concat(restDtos).
+		OrderByT(func(x dto.TimeStatusDto) int64 { return x.StartedOn.Unix() }).
+		ToSlice(&results)
+	return
+}
+
+func (tss *TimeStatusService) Delete(t enum.TimeStatusType, id uuid.UUID) error {
+	return tss.getRepository(t).Delete(id)
+}
+
+func (tss *TimeStatusService) Update(t enum.TimeStatusType, id uuid.UUID, cmd dto.TimeStatusCommandDto) error {
+	repo := tss.getRepository(t)
+	item, err := repo.Get(id)
+	if err != nil {
+		return err
+	}
+	if err := item.Edit(cmd); err != nil {
+		return err
+	}
+	repo.Update(*item)
+	return nil
 }
 
 func (tss *TimeStatusService) isActiveByRepository(t enum.TimeStatusType) bool {
@@ -84,6 +174,14 @@ func (tss *TimeStatusService) isActiveByRepository(t enum.TimeStatusType) bool {
 func isActiveByQuery(q linq.Query) bool {
 	l, ok := q.Last().(entity.TimeStatus)
 	return ok && l.IsActive()
+}
+
+func isWorkToggleEnabled(work linq.Query, rest linq.Query) bool {
+	wl, ok := work.Last().(entity.TimeStatus)
+	isWorkActive := ok &&
+		wl.IsActive() ||
+		util.GetDate(wl.EndTime) != util.GetDate(time.Now())
+	return !isActiveByQuery(rest) && isWorkActive
 }
 
 func (tss *TimeStatusService) getRepository(t enum.TimeStatusType) interfaces.ITimeStatusRepository {

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/google/uuid"
 )
 
 type ITimeStatusRepository interface {
@@ -12,6 +13,9 @@ type ITimeStatusRepository interface {
 	Update(item entity.TimeStatus)
 	QueryByDate(dt time.Time) linq.Query
 	GetLatest() *entity.TimeStatus
+	GetAll() linq.Query
+	Delete(id uuid.UUID) error
+	Get(id uuid.UUID) (*entity.TimeStatus, error)
 }
 
 type IWorkRepository ITimeStatusRepository

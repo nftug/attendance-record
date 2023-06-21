@@ -46,7 +46,7 @@ func (s *TimeStatusReceiver) StartUpdateTick() {
 	}()
 }
 
-func onTickTimer(ts dto.TimeStatusItemDto, d *time.Duration) {
+func onTickTimer(ts dto.CurrentTimeStatusItemDto, d *time.Duration) {
 	if !ts.IsActive || !ts.IsToggleEnabled {
 		return
 	}

@@ -5,10 +5,12 @@ import (
 	"attendance-record/domain/interfaces"
 	"attendance-record/infrastructure/datamodel"
 	"attendance-record/shared/util"
+	"errors"
 	"log"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/google/uuid"
 )
 
 func NewWorkDummyRepository() interfaces.IWorkRepository {
@@ -29,8 +31,7 @@ func (r *timeStatusDummyRepository) Create(item entity.TimeStatus) {
 }
 
 func (r *timeStatusDummyRepository) Update(item entity.TimeStatus) {
-	idx := linq.
-		From(r.data).
+	idx := linq.From(r.data).
 		IndexOfT(func(x datamodel.TimeStatus) bool { return x.Id == item.Id })
 	if idx == -1 {
 		log.Fatal("The item with specified id cannot be found.")
@@ -45,6 +46,10 @@ func (r *timeStatusDummyRepository) QueryByDate(dt time.Time) linq.Query {
 		SelectT(toEntitySelector)
 }
 
+func (r *timeStatusDummyRepository) GetAll() linq.Query {
+	return linq.From(r.data).OrderByT(orderByPredicate).SelectT(toEntitySelector)
+}
+
 func (r *timeStatusDummyRepository) GetLatest() *entity.TimeStatus {
 	if l, ok := linq.From(r.data).
 		WhereT(getWhereDayPredicate(util.GetNowDateTime())).
@@ -54,6 +59,24 @@ func (r *timeStatusDummyRepository) GetLatest() *entity.TimeStatus {
 		return &p
 	} else {
 		return nil
+	}
+}
+
+func (r *timeStatusDummyRepository) Delete(id uuid.UUID) error {
+	idx := linq.From(r.data).
+		IndexOfT(func(x datamodel.TimeStatus) bool { return x.Id == id })
+	r.data = append(r.data[:idx], r.data[idx+1:]...)
+	return nil
+}
+
+func (r *timeStatusDummyRepository) Get(id uuid.UUID) (*entity.TimeStatus, error) {
+	v, ok := linq.From(r.data).
+		SelectT(toEntitySelector).
+		FirstWithT(func(x entity.TimeStatus) bool { return x.Id == id }).(entity.TimeStatus)
+	if ok {
+		return &v, nil
+	} else {
+		return nil, errors.New("cannot get item")
 	}
 }
 

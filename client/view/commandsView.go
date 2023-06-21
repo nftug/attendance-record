@@ -6,32 +6,23 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewCommandsView(receiver *model.TimeStatusReceiver, w fyne.Window) *fyne.Container {
+func NewCommandsView(a *model.AppContainer, w fyne.Window) *fyne.Container {
 	btnWorking := widget.NewButton("", func() {})
 	btnResting := widget.NewButton("", func() {})
 	btnSync := widget.NewButton("同期", func() {})
-	btnReset := widget.NewButton("リセット", func() {})
-	btnReset.Disable()
+	btnHistory := widget.NewButton("履歴", func() { NewHistoryWindow(a) })
 
-	fMsg := func(title string, message string) {
-		dialog.ShowInformation(title, message, w)
-	}
-
-	vm := viewmodel.NewCommandsViewModel(receiver, btnWorking, btnResting, btnSync, w, fMsg)
-	btnWorking.OnTapped = vm.OnPressBtnWorking
-	btnResting.OnTapped = vm.OnPressBtnResting
-	btnSync.OnTapped = vm.OnPressBtnSync
+	viewmodel.NewCommandsViewModel(a.Receiver, btnWorking, btnResting, btnSync, w)
 
 	return container.New(
 		layout.NewGridLayoutWithColumns(2),
 		btnWorking,
 		btnResting,
 		btnSync,
-		btnReset,
+		btnHistory,
 	)
 }

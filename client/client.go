@@ -11,17 +11,19 @@ import (
 )
 
 type Client struct {
-	receiver *model.TimeStatusReceiver
+	Api model.ITimeStatusApi
 }
 
-func NewClient(receiver *model.TimeStatusReceiver) *Client {
-	return &Client{receiver: receiver}
+func NewClient(api model.ITimeStatusApi) *Client {
+	return &Client{Api: api}
 }
 
 func (c *Client) Run() {
 	a := app.New()
 	a.Settings().SetTheme(&resource.MyTheme{})
 	w := a.NewWindow("勤怠記録")
+
+	appContainer := model.NewAppContainer(c.Api, a)
 
 	if desk, ok := a.(desktop.App); ok {
 		m := fyne.NewMenu(
@@ -32,6 +34,6 @@ func (c *Client) Run() {
 	}
 	w.SetCloseIntercept(func() { w.Hide() })
 
-	w.SetContent(view.NewTimeStatusView(w, c.receiver))
+	w.SetContent(view.NewTimeStatusView(appContainer, w))
 	w.ShowAndRun()
 }

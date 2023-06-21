@@ -10,10 +10,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewStatusView(receiver *model.TimeStatusReceiver) *fyne.Container {
+func NewStatusView(a *model.AppContainer) *fyne.Container {
 	workTotal := binding.NewString()
 	restTotal := binding.NewString()
-	vm := viewmodel.NewStatusViewModel(receiver, workTotal, restTotal)
+	vm := viewmodel.NewStatusViewModel(a.Receiver, workTotal, restTotal)
 
 	lWorkTotal := widget.NewLabelWithData(any(vm.WorkTotal).(binding.String))
 	lRestTotal := widget.NewLabelWithData(any(vm.RestTotal).(binding.String))

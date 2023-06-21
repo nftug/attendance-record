@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -31,17 +32,28 @@ func (r *timeStatusSqlRepository) Create(item entity.TimeStatus) {
 
 func (r *timeStatusSqlRepository) Update(item entity.TimeStatus) {
 	updated := datamodel.NewTimeStatusFromEntity(item)
-	r.db.First(&datamodel.TimeStatus{}, item.Id).Updates(&updated)
+	e := r.db.First(&datamodel.TimeStatus{}, item.Id)
+	e.Updates(&updated)
+
+	if updated.EndTime == *new(time.Time) {
+		e.Select("end_time").Updates(updated)
+	}
 }
 
 func (r *timeStatusSqlRepository) QueryByDate(dt time.Time) linq.Query {
-	var results []datamodel.TimeStatus
+	var entities []datamodel.TimeStatus
 	today, tomorrow := getDayPair(dt)
 	r.db.
 		Where("start_time BETWEEN ? AND ?", today, tomorrow).
 		Order("start_time").
-		Find(&results)
-	return linq.From(results).SelectT(toEntitySelector)
+		Find(&entities)
+	return linq.From(entities).SelectT(toEntitySelector)
+}
+
+func (r *timeStatusSqlRepository) GetAll() linq.Query {
+	var entities []datamodel.TimeStatus
+	r.db.Order("start_time").Find(&entities)
+	return linq.From(entities).SelectT(toEntitySelector)
 }
 
 func (r *timeStatusSqlRepository) GetLatest() *entity.TimeStatus {
@@ -58,6 +70,21 @@ func (r *timeStatusSqlRepository) GetLatest() *entity.TimeStatus {
 	} else {
 		return nil
 	}
+}
+
+func (r *timeStatusSqlRepository) Delete(id uuid.UUID) error {
+	ret := r.db.Delete(&datamodel.TimeStatus{}, id)
+	return ret.Error
+}
+
+func (r *timeStatusSqlRepository) Get(id uuid.UUID) (*entity.TimeStatus, error) {
+	var e datamodel.TimeStatus
+	ret := r.db.First(&e, id)
+	return &entity.TimeStatus{
+		Id:        e.Id,
+		StartTime: e.StartTime,
+		EndTime:   e.EndTime,
+	}, ret.Error
 }
 
 func getDbModel(db *gorm.DB, recordType enum.TimeStatusType) *gorm.DB {
