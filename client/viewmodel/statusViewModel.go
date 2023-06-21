@@ -12,8 +12,8 @@ type StatusViewModel struct {
 }
 
 func (vm *StatusViewModel) update() {
-	vm.WorkTotal.Set(fmt.Sprintf("総勤務時間: %s", vm.receiver.WorkTotal))
-	vm.RestTotal.Set(fmt.Sprintf("総休憩時間: %s ", vm.receiver.RestTotal))
+	vm.WorkTotal.Set(fmt.Sprintf("総勤務時間: %s", vm.receiver.Status.Work.TotalTime))
+	vm.RestTotal.Set(fmt.Sprintf("総休憩時間: %s ", vm.receiver.Status.Rest.TotalTime))
 }
 
 func NewStatusViewModel(receiver *model.TimeStatusReceiver, work Binding[string], rest Binding[string]) *StatusViewModel {

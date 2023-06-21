@@ -21,6 +21,7 @@ func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
 			l := o.(*widget.Label)
 			if i.Row == 0 {
 				l.SetText(colName[i.Col])
+				l.TextStyle = fyne.TextStyle{Bold: true}
 			} else {
 				item := vm.Data[i.Row-1]
 
@@ -44,10 +45,11 @@ func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
 
 	list.OnSelected = func(i widget.TableCellID) {
 		if i.Row == 0 {
-			return
+			list.Unselect(i)
 		}
-		vm.Selected = &vm.Data[i.Row-1]
+		vm.SelIdx = i.Row - 1
 	}
+	vm.OnUnselected = list.UnselectAll
 
 	vm.AddUpdateFunc(list.Refresh)
 

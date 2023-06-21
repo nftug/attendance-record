@@ -12,17 +12,20 @@ import (
 )
 
 type HistoryViewModel struct {
-	api      model.ITimeStatusApi
-	receiver *model.TimeStatusReceiver
-	update   []func()
-	Data     []dto.TimeStatusDto
-	Selected *dto.TimeStatusDto
-	Window   fyne.Window
+	api          model.ITimeStatusApi
+	receiver     *model.TimeStatusReceiver
+	update       []func()
+	Data         []dto.TimeStatusDto
+	SelIdx       int
+	Window       fyne.Window
+	OnUnselected func()
 }
 
 func NewHistoryViewModel(a *model.AppContainer, w fyne.Window) *HistoryViewModel {
-	data := a.Api.GetAll()
-	return &HistoryViewModel{api: a.Api, receiver: a.Receiver, Data: data, Window: w}
+	vm := &HistoryViewModel{api: a.Api, receiver: a.Receiver, Window: w, SelIdx: -1}
+	a.Receiver.AddUpdateOuterFunc(vm.InvokeUpdate)
+	vm.InvokeUpdate()
+	return vm
 }
 
 func (vm *HistoryViewModel) AddUpdateFunc(f ...func()) {
@@ -31,21 +34,23 @@ func (vm *HistoryViewModel) AddUpdateFunc(f ...func()) {
 
 func (vm *HistoryViewModel) InvokeUpdate() {
 	vm.Data = vm.api.GetAll()
-	vm.receiver.SetCurrentStatus()
 	for _, f := range vm.update {
 		f()
 	}
 }
 
-func (vm *HistoryViewModel) DeleteSelected() error {
-	if vm.Selected == nil {
-		return errors.New("no items selected")
-	}
-
-	if err := vm.api.Delete((*vm.Selected).Type, (*vm.Selected).Id); err != nil {
+func (vm *HistoryViewModel) Delete(item dto.TimeStatusDto) error {
+	if err := vm.api.Delete(item.Type, item.Id); err != nil {
 		return err
 	}
-	vm.InvokeUpdate()
+
+	// vm.InvokeUpdate()
+	vm.receiver.SetCurrentStatus()
+
+	vm.SelIdx = -1
+	if vm.OnUnselected != nil {
+		vm.OnUnselected()
+	}
 	return nil
 }
 
@@ -73,6 +78,17 @@ func (vm *HistoryViewModel) Edit(item dto.TimeStatusDto, start string, end strin
 		fmt.Println(err)
 		return err
 	}
-	vm.InvokeUpdate()
+
+	// vm.InvokeUpdate()
+	vm.receiver.SetCurrentStatus()
 	return nil
+}
+
+func (vm *HistoryViewModel) GetSelected() (dto.TimeStatusDto, error) {
+	if vm.SelIdx < 0 {
+		return dto.TimeStatusDto{}, errors.New("no items selected")
+	} else if vm.SelIdx > len(vm.Data)-1 {
+		return dto.TimeStatusDto{}, errors.New("too large index")
+	}
+	return vm.Data[vm.SelIdx], nil
 }

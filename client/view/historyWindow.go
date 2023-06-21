@@ -13,21 +13,20 @@ var window fyne.Window
 
 func NewHistoryWindow(a *model.AppContainer) {
 	if window == nil {
-		window = a.App.NewWindow("履歴")
-		window.Resize(fyne.NewSize(500, 500))
+		window = a.App.NewWindow("打刻履歴")
 	}
 
 	vm := viewmodel.NewHistoryViewModel(a, window)
 	table := NewHistoryListView(vm)
 	toolbar := NewHistoryToolbarView(vm)
 
-	content := container.New(
+	window.SetContent(container.New(
 		layout.NewBorderLayout(toolbar, nil, nil, nil),
 		toolbar,
 		table,
-	)
-	window.SetContent(content)
+	))
 
 	window.SetCloseIntercept(func() { window.Hide() })
+	window.Resize(fyne.NewSize(500, 500))
 	window.Show()
 }

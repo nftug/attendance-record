@@ -13,5 +13,7 @@ func NewHistoryToolbarView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
 		widget.NewToolbarAction(theme.ContentAddIcon(), func() {}),
 		widget.NewToolbarAction(theme.DocumentCreateIcon(), func() { ShowEditDialog(vm) }),
 		widget.NewToolbarAction(theme.ContentClearIcon(), func() { ShowDeleteDialog(vm) }),
+		widget.NewToolbarSeparator(),
+		widget.NewToolbarAction(theme.ViewRefreshIcon(), func() { vm.InvokeUpdate() }),
 	)
 }

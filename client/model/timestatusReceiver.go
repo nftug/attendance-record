@@ -10,17 +10,16 @@ import (
 var instance *TimeStatusReceiver
 
 type TimeStatusReceiver struct {
-	api       ITimeStatusApi
-	Status    dto.CurrentTimeStatusDto
-	WorkTotal time.Duration
-	RestTotal time.Duration
-	update    []func()
+	api         ITimeStatusApi
+	Status      dto.CurrentTimeStatusDto
+	update      []func()
+	updateOuter []func()
 }
 
 func NewTimeStatusReceiverSingleton(api ITimeStatusApi) *TimeStatusReceiver {
 	if instance == nil {
 		status := api.GetCurrentStatus()
-		instance = &TimeStatusReceiver{api, status, status.Work.TotalTime, status.Rest.TotalTime, []func(){}}
+		instance = &TimeStatusReceiver{api, status, []func(){}, []func(){}}
 		instance.StartUpdateTick()
 	}
 	return instance
@@ -30,8 +29,19 @@ func (s *TimeStatusReceiver) AddUpdateFunc(f ...func()) {
 	s.update = append(s.update, f...)
 }
 
-func (s *TimeStatusReceiver) InvokeUpdate() {
+func (s *TimeStatusReceiver) AddUpdateOuterFunc(f ...func()) {
+	s.updateOuter = append(s.updateOuter, f...)
+}
+
+func (s *TimeStatusReceiver) invokeUpdate() {
 	for _, f := range s.update {
+		f()
+	}
+}
+
+func (s *TimeStatusReceiver) InvokeUpdate() {
+	s.invokeUpdate()
+	for _, f := range s.updateOuter {
 		f()
 	}
 }
@@ -39,18 +49,10 @@ func (s *TimeStatusReceiver) InvokeUpdate() {
 func (s *TimeStatusReceiver) StartUpdateTick() {
 	go func() {
 		for range cticker.New(time.Second, 100*time.Millisecond).C {
-			onTickTimer(s.Status.Work, &s.WorkTotal)
-			onTickTimer(s.Status.Rest, &s.RestTotal)
-			s.InvokeUpdate()
+			s.Status = s.api.GetCurrentStatus()
+			s.invokeUpdate()
 		}
 	}()
-}
-
-func onTickTimer(ts dto.CurrentTimeStatusItemDto, d *time.Duration) {
-	if !ts.IsActive || !ts.IsToggleEnabled {
-		return
-	}
-	*d += time.Duration(1) * time.Second
 }
 
 func (s *TimeStatusReceiver) ToggleWork() {
@@ -65,7 +67,5 @@ func (s *TimeStatusReceiver) ToggleRest() {
 
 func (s *TimeStatusReceiver) SetCurrentStatus() {
 	s.Status = s.api.GetCurrentStatus()
-	s.WorkTotal = s.Status.Work.TotalTime
-	s.RestTotal = s.Status.Rest.TotalTime
 	s.InvokeUpdate()
 }
