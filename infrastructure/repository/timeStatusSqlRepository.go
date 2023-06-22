@@ -25,66 +25,58 @@ type timeStatusSqlRepository struct {
 	db *gorm.DB
 }
 
-func (r *timeStatusSqlRepository) Create(item entity.TimeStatus) {
+func (r *timeStatusSqlRepository) Create(item entity.TimeStatus) error {
 	d := datamodel.NewTimeStatusFromEntity(item)
-	r.db.Create(&d)
+	return r.db.Create(&d).Error
 }
 
-func (r *timeStatusSqlRepository) Update(item entity.TimeStatus) {
+func (r *timeStatusSqlRepository) Update(item entity.TimeStatus) error {
 	updated := datamodel.NewTimeStatusFromEntity(item)
 	e := r.db.First(&datamodel.TimeStatus{}, item.Id)
-	e.Updates(&updated)
-
-	if updated.EndTime == *new(time.Time) {
-		e.Select("end_time").Updates(updated)
+	if err := e.Updates(&updated).Error; err != nil {
+		return err
 	}
+	if updated.EndTime == *new(time.Time) {
+		return e.Select("end_time").Updates(updated).Error
+	}
+
+	return nil
 }
 
-func (r *timeStatusSqlRepository) QueryByDate(dt time.Time) linq.Query {
+func (r *timeStatusSqlRepository) FindByDate(start time.Time, end time.Time) (linq.Query, error) {
 	var entities []datamodel.TimeStatus
-	today, tomorrow := getDayPair(dt)
-	r.db.
-		Where("start_time BETWEEN ? AND ?", today, tomorrow).
+	ctx := r.db.
+		Where("start_time BETWEEN ? AND ?", util.GetDate(start), util.GetDate(end)).
 		Order("start_time").
 		Find(&entities)
-	return linq.From(entities).SelectT(toEntitySelector)
+	return linq.From(entities).SelectT(toEntitySelector), ctx.Error
 }
 
-func (r *timeStatusSqlRepository) GetAll() linq.Query {
-	var entities []datamodel.TimeStatus
-	r.db.Order("start_time").Find(&entities)
-	return linq.From(entities).SelectT(toEntitySelector)
-}
-
-func (r *timeStatusSqlRepository) GetLatest() *entity.TimeStatus {
+func (r *timeStatusSqlRepository) GetLatest() (*entity.TimeStatus, error) {
 	var entity datamodel.TimeStatus
 	today, tomorrow := getDayPair(util.GetNowDateTime())
-	r.db.
+	ctx := r.db.
 		Where("start_time BETWEEN ? AND ?", today, tomorrow).
 		Order("start_time DESC").
 		FirstOrInit(&entity)
 
 	if entity != *new(datamodel.TimeStatus) {
 		p := entity.ToEntity()
-		return &p
+		return &p, nil
 	} else {
-		return nil
+		return nil, ctx.Error
 	}
 }
 
 func (r *timeStatusSqlRepository) Delete(id uuid.UUID) error {
-	ret := r.db.Delete(&datamodel.TimeStatus{}, id)
-	return ret.Error
+	return r.db.Delete(&datamodel.TimeStatus{}, id).Error
 }
 
 func (r *timeStatusSqlRepository) Get(id uuid.UUID) (*entity.TimeStatus, error) {
 	var e datamodel.TimeStatus
-	ret := r.db.First(&e, id)
-	return &entity.TimeStatus{
-		Id:        e.Id,
-		StartTime: e.StartTime,
-		EndTime:   e.EndTime,
-	}, ret.Error
+	ctx := r.db.First(&e, id)
+	p := e.ToEntity()
+	return &p, ctx.Error
 }
 
 func getDbModel(db *gorm.DB, recordType enum.TimeStatusType) *gorm.DB {

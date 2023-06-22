@@ -10,16 +10,14 @@ import (
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
-	"github.com/google/uuid"
 )
 
 type TimeStatusService struct {
-	workRepository interfaces.IWorkRepository
-	restRepository interfaces.IRestRepository
+	repo *interfaces.TimeStatusRepositorySet
 }
 
-func NewTimeStatusService(wr interfaces.IWorkRepository, rr interfaces.IRestRepository) *TimeStatusService {
-	return &TimeStatusService{wr, rr}
+func NewTimeStatusService(r *interfaces.TimeStatusRepositorySet) *TimeStatusService {
+	return &TimeStatusService{r}
 }
 
 func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) error {
@@ -29,42 +27,52 @@ func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) error {
 		return errors.New("cannot toggle rest status")
 	}
 
-	repo := tss.getRepository(t)
-	if item := repo.GetLatest(); item != nil && item.IsActive() {
+	repo := tss.repo.Get(t)
+	if item, err := repo.GetLatest(); item != nil && item.IsActive() {
 		item.End()
 		repo.Update(*item)
+	} else if err != nil {
+		return err
 	} else {
 		if t == enum.Work &&
 			item != nil &&
-			util.GetDate(item.EndTime) == util.GetDate(time.Now()) {
+			util.GetDate(item.Record.EndTime) == util.GetDate(time.Now()) {
 			return errors.New("no operation is allowed after leaving work within the same day")
 		}
-		repo.Create(entity.NewTimeStatus())
+		repo.Create(entity.NewTimeStatusAsNow())
 	}
 
 	return nil
 }
 
-func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
+func (tss *TimeStatusService) GetCurrent() (dto.CurrentTimeStatusDto, error) {
 	var workStartedOn, workEndedOn, restStartedOn, restEndedOn time.Time
 
 	now := util.GetNowDateTime()
-	queryWork := tss.workRepository.QueryByDate(now)
-	queryRest := tss.restRepository.QueryByDate(now)
+	today := util.GetDate(now)
+	tomorrow := today.AddDate(0, 0, 1)
+	queryWork, err := tss.repo.Get(enum.Work).FindByDate(today, tomorrow)
+	if err != nil {
+		return *new(dto.CurrentTimeStatusDto), err
+	}
+	queryRest, err := tss.repo.Get(enum.Rest).FindByDate(today, tomorrow)
+	if err != nil {
+		return *new(dto.CurrentTimeStatusDto), err
+	}
 	selTotal := func(x entity.TimeStatus) int64 { return int64(x.TotalTime(now)) }
 
 	workTotal := queryWork.SelectT(selTotal).SumInts()
 	if wf, ok := queryWork.First().(entity.TimeStatus); ok {
-		workStartedOn = wf.StartTime
+		workStartedOn = wf.Record.StartTime
 	}
 	if wl, ok := queryWork.Last().(entity.TimeStatus); ok && !wl.IsActive() {
-		workEndedOn = wl.EndTime
+		workEndedOn = wl.Record.EndTime
 	}
 
 	restTotal := queryRest.SelectT(selTotal).SumInts()
 	if rl, ok := queryRest.Last().(entity.TimeStatus); ok {
-		restStartedOn = rl.StartTime
-		restEndedOn = rl.EndTime
+		restStartedOn = rl.Record.StartTime
+		restEndedOn = rl.Record.EndTime
 	}
 
 	return dto.CurrentTimeStatusDto{
@@ -82,12 +90,21 @@ func (tss *TimeStatusService) GetCurrent() dto.CurrentTimeStatusDto {
 			StartedOn:       restStartedOn,
 			EndedOn:         restEndedOn,
 		},
-	}
+	}, nil
 }
 
-func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
-	workAll := tss.workRepository.GetAll()
-	restAll := tss.restRepository.GetAll()
+func (tss *TimeStatusService) FindByMonth(year int, month time.Month) (results []dto.TimeStatusDto, err error) {
+	startDate := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	endDate := startDate.AddDate(0, 1, 0)
+
+	workAll, err := tss.repo.Get(enum.Work).FindByDate(startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	restAll, err := tss.repo.Get(enum.Rest).FindByDate(startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
 	now := util.GetNowDateTime()
 
 	type RestDuration struct {
@@ -97,7 +114,7 @@ func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
 
 	restDurations := restAll.
 		GroupByT(
-			func(x entity.TimeStatus) time.Time { return util.GetDate(x.StartTime) },
+			func(x entity.TimeStatus) time.Time { return util.GetDate(x.Record.StartTime) },
 			func(x entity.TimeStatus) int64 { return int64(x.TotalTime(now)) },
 		).
 		SelectT(func(x linq.Group) RestDuration {
@@ -109,7 +126,7 @@ func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
 
 	workDtos := workAll.GroupJoinT(
 		restDurations,
-		func(x entity.TimeStatus) time.Time { return util.GetDate(x.StartTime) },
+		func(x entity.TimeStatus) time.Time { return util.GetDate(x.Record.StartTime) },
 		func(x RestDuration) time.Time { return x.date },
 		func(o entity.TimeStatus, i []RestDuration) dto.TimeStatusDto {
 			var totalTime time.Duration
@@ -119,8 +136,8 @@ func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
 			return dto.TimeStatusDto{
 				Id:        o.Id,
 				Type:      enum.Work,
-				StartedOn: o.StartTime,
-				EndedOn:   o.EndTime,
+				StartedOn: o.Record.StartTime,
+				EndedOn:   o.Record.EndTime,
 				TotalTime: o.TotalTime(now) - totalTime,
 			}
 		},
@@ -130,8 +147,8 @@ func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
 		return dto.TimeStatusDto{
 			Id:        x.Id,
 			Type:      enum.Rest,
-			StartedOn: x.StartTime,
-			EndedOn:   x.EndTime,
+			StartedOn: x.Record.StartTime,
+			EndedOn:   x.Record.EndTime,
 			TotalTime: x.TotalTime(now),
 		}
 	})
@@ -143,25 +160,8 @@ func (tss *TimeStatusService) GetAll() (results []dto.TimeStatusDto) {
 	return
 }
 
-func (tss *TimeStatusService) Delete(t enum.TimeStatusType, id uuid.UUID) error {
-	return tss.getRepository(t).Delete(id)
-}
-
-func (tss *TimeStatusService) Update(t enum.TimeStatusType, id uuid.UUID, cmd dto.TimeStatusCommandDto) error {
-	repo := tss.getRepository(t)
-	item, err := repo.Get(id)
-	if err != nil {
-		return err
-	}
-	if err := item.Edit(cmd); err != nil {
-		return err
-	}
-	repo.Update(*item)
-	return nil
-}
-
 func (tss *TimeStatusService) isActiveByRepository(t enum.TimeStatusType) bool {
-	l := tss.getRepository(t).GetLatest()
+	l, _ := tss.repo.Get(t).GetLatest()
 	return l != nil && l.IsActive()
 }
 
@@ -174,15 +174,6 @@ func isWorkToggleEnabled(work linq.Query, rest linq.Query) bool {
 	wl, ok := work.Last().(entity.TimeStatus)
 	isWorkActive := ok &&
 		wl.IsActive() ||
-		util.GetDate(wl.EndTime) != util.GetDate(time.Now())
+		util.GetDate(wl.Record.EndTime) != util.GetDate(time.Now())
 	return !isActiveByQuery(rest) && isWorkActive
-}
-
-func (tss *TimeStatusService) getRepository(t enum.TimeStatusType) interfaces.ITimeStatusRepository {
-	if t == enum.Work {
-		return tss.workRepository
-	} else if t == enum.Rest {
-		return tss.restRepository
-	}
-	return nil
 }

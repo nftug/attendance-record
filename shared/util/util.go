@@ -23,6 +23,5 @@ func FormatDateTime(dt time.Time) string {
 }
 
 func SetHourAndMinute(origin time.Time, sub time.Time) time.Time {
-	origin = GetDate(origin)
 	return time.Date(origin.Year(), origin.Month(), origin.Day(), sub.Hour(), sub.Minute(), sub.Second(), 0, time.Local)
 }

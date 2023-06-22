@@ -10,10 +10,10 @@ import (
 )
 
 func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
-	colName := []string{"種類", "開始時刻", "終了時刻", "時間数"}
+	colName := []string{"日付", "種類", "開始時刻", "終了時刻", "時間数"}
 
 	list := widget.NewTable(
-		func() (int, int) { return len(vm.Data) + 1, 4 },
+		func() (int, int) { return len(vm.Data) + 1, 5 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("wide content")
 		},
@@ -27,16 +27,18 @@ func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
 
 				switch i.Col {
 				case 0:
+					l.SetText(util.GetDate(item.StartedOn).Format("2006-01-02"))
+				case 1:
 					if item.Type == enum.Work {
 						l.SetText("勤務")
 					} else {
 						l.SetText("休憩")
 					}
-				case 1:
-					l.SetText(util.FormatDateTime(item.StartedOn))
 				case 2:
-					l.SetText(util.FormatDateTime(item.EndedOn))
+					l.SetText(util.FormatDateTime(item.StartedOn))
 				case 3:
+					l.SetText(util.FormatDateTime(item.EndedOn))
+				case 4:
 					l.SetText(item.TotalTime.String())
 				}
 			}

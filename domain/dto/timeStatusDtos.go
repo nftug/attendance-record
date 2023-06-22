@@ -27,8 +27,3 @@ type CurrentTimeStatusDto struct {
 	Work CurrentTimeStatusItemDto
 	Rest CurrentTimeStatusItemDto
 }
-
-type TimeStatusCommandDto struct {
-	StartedOn time.Time
-	EndedOn   time.Time
-}

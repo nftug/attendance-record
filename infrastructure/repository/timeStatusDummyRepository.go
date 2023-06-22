@@ -6,7 +6,6 @@ import (
 	"attendance-record/infrastructure/datamodel"
 	"attendance-record/shared/util"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/ahmetb/go-linq/v3"
@@ -25,40 +24,38 @@ type timeStatusDummyRepository struct {
 	data []datamodel.TimeStatus
 }
 
-func (r *timeStatusDummyRepository) Create(item entity.TimeStatus) {
+func (r *timeStatusDummyRepository) Create(item entity.TimeStatus) error {
 	d := datamodel.NewTimeStatusFromEntity(item)
 	r.data = append(r.data, d)
+	return nil
 }
 
-func (r *timeStatusDummyRepository) Update(item entity.TimeStatus) {
+func (r *timeStatusDummyRepository) Update(item entity.TimeStatus) error {
 	idx := linq.From(r.data).
 		IndexOfT(func(x datamodel.TimeStatus) bool { return x.Id == item.Id })
 	if idx == -1 {
-		log.Fatal("The item with specified id cannot be found.")
+		return errors.New("the item with specified id cannot be found")
 	}
 	r.data[idx] = datamodel.NewTimeStatusFromEntity(item)
+	return nil
 }
 
-func (r *timeStatusDummyRepository) QueryByDate(dt time.Time) linq.Query {
+func (r *timeStatusDummyRepository) FindByDate(start time.Time, end time.Time) (linq.Query, error) {
 	return linq.From(r.data).
-		WhereT(getWhereDayPredicate(dt)).
+		WhereT(func(x datamodel.TimeStatus) bool { return x.StartTime.After(start) && x.StartTime.Before(end) }).
 		OrderByT(orderByPredicate).
-		SelectT(toEntitySelector)
+		SelectT(toEntitySelector), nil
 }
 
-func (r *timeStatusDummyRepository) GetAll() linq.Query {
-	return linq.From(r.data).OrderByT(orderByPredicate).SelectT(toEntitySelector)
-}
-
-func (r *timeStatusDummyRepository) GetLatest() *entity.TimeStatus {
+func (r *timeStatusDummyRepository) GetLatest() (*entity.TimeStatus, error) {
 	if l, ok := linq.From(r.data).
 		WhereT(getWhereDayPredicate(util.GetNowDateTime())).
 		OrderByT(orderByPredicate).
 		Last().(datamodel.TimeStatus); ok {
 		p := l.ToEntity()
-		return &p
+		return &p, nil
 	} else {
-		return nil
+		return nil, nil
 	}
 }
 

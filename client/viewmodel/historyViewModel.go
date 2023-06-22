@@ -3,12 +3,12 @@ package viewmodel
 import (
 	"attendance-record/client/model"
 	"attendance-record/domain/dto"
-	"attendance-record/shared/util"
+	"attendance-record/domain/enum"
 	"errors"
-	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/dialog"
 )
 
 type HistoryViewModel struct {
@@ -17,13 +17,24 @@ type HistoryViewModel struct {
 	update       []func()
 	Data         []dto.TimeStatusDto
 	SelIdx       int
+	CurDt        time.Time
+	CurDtData    Binding[string]
 	Window       fyne.Window
 	OnUnselected func()
 }
 
-func NewHistoryViewModel(a *model.AppContainer, w fyne.Window) *HistoryViewModel {
-	vm := &HistoryViewModel{api: a.Api, receiver: a.Receiver, Window: w, SelIdx: -1}
+func NewHistoryViewModel(a *model.AppContainer, w fyne.Window, curDtData Binding[string]) *HistoryViewModel {
+	now := time.Now()
+	vm := &HistoryViewModel{
+		api:       a.Api,
+		receiver:  a.Receiver,
+		Window:    w,
+		SelIdx:    -1,
+		CurDt:     time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local),
+		CurDtData: curDtData,
+	}
 	a.Receiver.AddUpdateOuterFunc(vm.InvokeUpdate)
+
 	vm.InvokeUpdate()
 	return vm
 }
@@ -33,10 +44,27 @@ func (vm *HistoryViewModel) AddUpdateFunc(f ...func()) {
 }
 
 func (vm *HistoryViewModel) InvokeUpdate() {
-	vm.Data = vm.api.GetAll()
+	vm.CurDtData.Set(vm.CurDt.Format("2006年 01月"))
+	d, err := vm.api.FindByMonth(vm.CurDt.Year(), vm.CurDt.Month())
+	if err != nil {
+		dialog.ShowError(err, vm.Window)
+		return
+	}
+	vm.Data = d
+
 	for _, f := range vm.update {
 		f()
 	}
+}
+
+func (vm *HistoryViewModel) NextMonth() {
+	vm.CurDt = vm.CurDt.AddDate(0, 1, 0)
+	vm.InvokeUpdate()
+}
+
+func (vm *HistoryViewModel) PrevMonth() {
+	vm.CurDt = vm.CurDt.AddDate(0, -1, 0)
+	vm.InvokeUpdate()
 }
 
 func (vm *HistoryViewModel) Delete(item dto.TimeStatusDto) error {
@@ -55,27 +83,30 @@ func (vm *HistoryViewModel) Delete(item dto.TimeStatusDto) error {
 }
 
 func (vm *HistoryViewModel) Edit(item dto.TimeStatusDto, start string, end string) error {
-	layout := "15:04"
-	cmd := dto.TimeStatusCommandDto{}
-
-	startedOn, err := time.Parse(layout, start)
+	date := item.StartedOn.Format(dto.DateFormat)
+	cmd, err := dto.NewTimeStatusCommandDto(date, start, end)
 	if err != nil {
 		return err
 	}
-	cmd.StartedOn = util.SetHourAndMinute(item.StartedOn, startedOn)
-
-	if end != "" {
-		endedOn, err := time.Parse(layout, end)
-		if err != nil {
-			return err
-		}
-		cmd.EndedOn = util.SetHourAndMinute(item.StartedOn, endedOn)
-	} else {
-		cmd.EndedOn = *new(time.Time)
-	}
 
 	if err = vm.api.Update(item.Type, item.Id, cmd); err != nil {
-		fmt.Println(err)
+		dialog.ShowError(err, vm.Window)
+		return err
+	}
+
+	// vm.InvokeUpdate()
+	vm.receiver.SetCurrentStatus()
+	return nil
+}
+
+func (vm *HistoryViewModel) Create(t enum.TimeStatusType, date string, start string, end string) error {
+	cmd, err := dto.NewTimeStatusCommandDto(date, start, end)
+	if err != nil {
+		return err
+	}
+
+	if err = vm.api.Create(t, cmd); err != nil {
+		dialog.ShowError(err, vm.Window)
 		return err
 	}
 

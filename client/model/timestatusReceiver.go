@@ -2,6 +2,7 @@ package model
 
 import (
 	"attendance-record/domain/dto"
+	"fmt"
 	"time"
 
 	"github.com/multiplay/go-cticker"
@@ -18,7 +19,11 @@ type TimeStatusReceiver struct {
 
 func NewTimeStatusReceiverSingleton(api ITimeStatusApi) *TimeStatusReceiver {
 	if instance == nil {
-		status := api.GetCurrentStatus()
+		status, err := api.GetCurrentStatus()
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		instance = &TimeStatusReceiver{api, status, []func(){}, []func(){}}
 		instance.StartUpdateTick()
 	}
@@ -49,23 +54,37 @@ func (s *TimeStatusReceiver) InvokeUpdate() {
 func (s *TimeStatusReceiver) StartUpdateTick() {
 	go func() {
 		for range cticker.New(time.Second, 100*time.Millisecond).C {
-			s.Status = s.api.GetCurrentStatus()
+			st, err := s.api.GetCurrentStatus()
+			if err != nil {
+				fmt.Println(err)
+			}
+			s.Status = st
 			s.invokeUpdate()
 		}
 	}()
 }
 
 func (s *TimeStatusReceiver) ToggleWork() {
-	s.Status = s.api.ToggleWork()
-	s.InvokeUpdate()
+	err := s.api.ToggleWork()
+	if err != nil {
+		fmt.Println(err)
+	}
+	s.SetCurrentStatus()
 }
 
 func (s *TimeStatusReceiver) ToggleRest() {
-	s.Status = s.api.ToggleRest()
-	s.InvokeUpdate()
+	err := s.api.ToggleRest()
+	if err != nil {
+		fmt.Println(err)
+	}
+	s.SetCurrentStatus()
 }
 
 func (s *TimeStatusReceiver) SetCurrentStatus() {
-	s.Status = s.api.GetCurrentStatus()
+	st, err := s.api.GetCurrentStatus()
+	if err != nil {
+		fmt.Println(err)
+	}
+	s.Status = st
 	s.InvokeUpdate()
 }

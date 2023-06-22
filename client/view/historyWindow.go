@@ -6,7 +6,9 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 )
 
 var window fyne.Window
@@ -16,17 +18,22 @@ func NewHistoryWindow(a *model.AppContainer) {
 		window = a.App.NewWindow("打刻履歴")
 	}
 
-	vm := viewmodel.NewHistoryViewModel(a, window)
+	curDtData := binding.NewString()
+	vm := viewmodel.NewHistoryViewModel(a, window, curDtData)
+
+	curDtLabel := widget.NewLabelWithData(curDtData)
+	curDtLabel.TextStyle = fyne.TextStyle{Bold: true}
 	table := NewHistoryListView(vm)
 	toolbar := NewHistoryToolbarView(vm)
 
 	window.SetContent(container.New(
-		layout.NewBorderLayout(toolbar, nil, nil, nil),
+		layout.NewBorderLayout(toolbar, curDtLabel, nil, nil),
 		toolbar,
+		curDtLabel,
 		table,
 	))
 
 	window.SetCloseIntercept(func() { window.Hide() })
-	window.Resize(fyne.NewSize(500, 500))
+	window.Resize(fyne.NewSize(550, 500))
 	window.Show()
 }

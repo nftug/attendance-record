@@ -85,7 +85,7 @@ func (vm *CommandsViewModel) updateByIsActive() {
 	if s.Rest.IsActive {
 		vm.window.SetTitle("勤怠記録 - [休憩中]")
 	} else if s.Work.IsActive {
-		vm.window.SetTitle("勤怠記録 - [出勤中]")
+		vm.window.SetTitle("勤怠記録 - [勤務中]")
 	} else {
 		vm.window.SetTitle("勤怠記録")
 	}

@@ -9,6 +9,7 @@ package main
 import (
 	"attendance-record/client"
 	"attendance-record/client/model"
+	"attendance-record/domain/interfaces"
 	"attendance-record/domain/service"
 	"attendance-record/infrastructure"
 	"attendance-record/infrastructure/repository"
@@ -22,8 +23,9 @@ func initApp() *shared.App {
 	db := infrastructure.NewDBSingleton()
 	iWorkRepository := repository.NewWorkSqlRepository(db)
 	iRestRepository := repository.NewRestSqlRepository(db)
-	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)
-	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
+	timeStatusRepositorySet := interfaces.NewTimeStatusRepositorySet(iWorkRepository, iRestRepository)
+	timeStatusService := service.NewTimeStatusService(timeStatusRepositorySet)
+	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet)
 	app := shared.NewAppSingleton(timeStatusUseCase)
 	return app
 }
@@ -32,8 +34,9 @@ func initClient() *client.Client {
 	db := infrastructure.NewDBSingleton()
 	iWorkRepository := repository.NewWorkSqlRepository(db)
 	iRestRepository := repository.NewRestSqlRepository(db)
-	timeStatusService := service.NewTimeStatusService(iWorkRepository, iRestRepository)
-	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService)
+	timeStatusRepositorySet := interfaces.NewTimeStatusRepositorySet(iWorkRepository, iRestRepository)
+	timeStatusService := service.NewTimeStatusService(timeStatusRepositorySet)
+	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet)
 	app := shared.NewAppSingleton(timeStatusUseCase)
 	iTimeStatusApi := model.NewLocalApi(app)
 	clientClient := client.NewClient(iTimeStatusApi)
