@@ -69,6 +69,7 @@ func (vm *HistoryViewModel) PrevMonth() {
 
 func (vm *HistoryViewModel) Delete(item dto.TimeStatusDto) error {
 	if err := vm.api.Delete(item.Type, item.Id); err != nil {
+		dialog.ShowError(err, vm.Window)
 		return err
 	}
 
@@ -86,6 +87,7 @@ func (vm *HistoryViewModel) Edit(item dto.TimeStatusDto, start string, end strin
 	date := item.StartedOn.Format(dto.DateFormat)
 	cmd, err := dto.NewTimeStatusCommandDto(date, start, end)
 	if err != nil {
+		dialog.ShowError(err, vm.Window)
 		return err
 	}
 
@@ -102,6 +104,7 @@ func (vm *HistoryViewModel) Edit(item dto.TimeStatusDto, start string, end strin
 func (vm *HistoryViewModel) Create(t enum.TimeStatusType, date string, start string, end string) error {
 	cmd, err := dto.NewTimeStatusCommandDto(date, start, end)
 	if err != nil {
+		dialog.ShowError(err, vm.Window)
 		return err
 	}
 

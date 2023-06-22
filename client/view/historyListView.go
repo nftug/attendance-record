@@ -46,6 +46,7 @@ func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
 	)
 
 	list.OnSelected = func(i widget.TableCellID) {
+		list.Select(widget.TableCellID{Row: i.Row, Col: 0})
 		if i.Row == 0 {
 			list.Unselect(i)
 		}

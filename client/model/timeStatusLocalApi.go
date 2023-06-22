@@ -26,7 +26,7 @@ func (api *timeStatusLocalApi) ToggleRest() error {
 	return api.usecase.ToggleRest()
 }
 
-func (api *timeStatusLocalApi) GetCurrentStatus() (dto.CurrentTimeStatusDto, error) {
+func (api *timeStatusLocalApi) GetCurrentStatus() (*dto.CurrentTimeStatusDto, error) {
 	return api.usecase.GetCurrent()
 }
 

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"attendance-record/domain/dto"
-	"attendance-record/domain/entity"
 	"attendance-record/domain/enum"
 	"attendance-record/domain/interfaces"
 	"attendance-record/domain/service"
@@ -28,7 +27,7 @@ func (u *TimeStatusUseCase) ToggleRest() error {
 	return u.service.ToggleState(enum.Rest)
 }
 
-func (u *TimeStatusUseCase) GetCurrent() (dto.CurrentTimeStatusDto, error) {
+func (u *TimeStatusUseCase) GetCurrent() (*dto.CurrentTimeStatusDto, error) {
 	return u.service.GetCurrent()
 }
 
@@ -37,13 +36,7 @@ func (u *TimeStatusUseCase) FindByMonth(year int, month time.Month) ([]dto.TimeS
 }
 
 func (u *TimeStatusUseCase) Create(t enum.TimeStatusType, cmd dto.TimeStatusCommandDto) error {
-	repo := u.repo.Get(t)
-	item, err := entity.NewTimeStatus(cmd)
-	if err != nil {
-		return err
-	}
-	repo.Create(*item)
-	return nil
+	return u.service.Create(t, cmd)
 }
 
 func (u *TimeStatusUseCase) Delete(t enum.TimeStatusType, id uuid.UUID) error {

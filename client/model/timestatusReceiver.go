@@ -24,7 +24,7 @@ func NewTimeStatusReceiverSingleton(api ITimeStatusApi) *TimeStatusReceiver {
 			fmt.Println(err)
 		}
 
-		instance = &TimeStatusReceiver{api, status, []func(){}, []func(){}}
+		instance = &TimeStatusReceiver{api, *status, []func(){}, []func(){}}
 		instance.StartUpdateTick()
 	}
 	return instance
@@ -58,7 +58,7 @@ func (s *TimeStatusReceiver) StartUpdateTick() {
 			if err != nil {
 				fmt.Println(err)
 			}
-			s.Status = st
+			s.Status = *st
 			s.invokeUpdate()
 		}
 	}()
@@ -85,6 +85,6 @@ func (s *TimeStatusReceiver) SetCurrentStatus() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	s.Status = st
+	s.Status = *st
 	s.InvokeUpdate()
 }

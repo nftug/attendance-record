@@ -45,7 +45,7 @@ func (tss *TimeStatusService) ToggleState(t enum.TimeStatusType) error {
 	return nil
 }
 
-func (tss *TimeStatusService) GetCurrent() (dto.CurrentTimeStatusDto, error) {
+func (tss *TimeStatusService) GetCurrent() (*dto.CurrentTimeStatusDto, error) {
 	var workStartedOn, workEndedOn, restStartedOn, restEndedOn time.Time
 
 	now := util.GetNowDateTime()
@@ -53,11 +53,11 @@ func (tss *TimeStatusService) GetCurrent() (dto.CurrentTimeStatusDto, error) {
 	tomorrow := today.AddDate(0, 0, 1)
 	queryWork, err := tss.repo.Get(enum.Work).FindByDate(today, tomorrow)
 	if err != nil {
-		return *new(dto.CurrentTimeStatusDto), err
+		return nil, err
 	}
 	queryRest, err := tss.repo.Get(enum.Rest).FindByDate(today, tomorrow)
 	if err != nil {
-		return *new(dto.CurrentTimeStatusDto), err
+		return nil, err
 	}
 	selTotal := func(x entity.TimeStatus) int64 { return int64(x.TotalTime(now)) }
 
@@ -75,7 +75,7 @@ func (tss *TimeStatusService) GetCurrent() (dto.CurrentTimeStatusDto, error) {
 		restEndedOn = rl.Record.EndTime
 	}
 
-	return dto.CurrentTimeStatusDto{
+	return &dto.CurrentTimeStatusDto{
 		Work: dto.CurrentTimeStatusItemDto{
 			IsToggleEnabled: isWorkToggleEnabled(queryWork, queryRest),
 			IsActive:        isActiveByQuery(queryWork),
@@ -158,6 +158,27 @@ func (tss *TimeStatusService) FindByMonth(year int, month time.Month) (results [
 		OrderByT(func(x dto.TimeStatusDto) int64 { return x.StartedOn.Unix() }).
 		ToSlice(&results)
 	return
+}
+
+func (tss *TimeStatusService) Create(t enum.TimeStatusType, cmd dto.TimeStatusCommandDto) error {
+	repo := tss.repo.Get(t)
+	item, err := entity.NewTimeStatus(cmd)
+	if err != nil {
+		return err
+	}
+
+	dt := util.GetDate(cmd.StartedOn)
+	if t == enum.Work {
+		workQuery, err := tss.repo.Get(enum.Work).FindByDate(dt, dt.AddDate(0, 0, 1))
+		if err != nil {
+			return err
+		} else if workQuery.Any() {
+			return errors.New("only one data of work within a day is available")
+		}
+	}
+
+	repo.Create(*item)
+	return nil
 }
 
 func (tss *TimeStatusService) isActiveByRepository(t enum.TimeStatusType) bool {
