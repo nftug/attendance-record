@@ -9,17 +9,17 @@ var app *App
 
 type App struct {
 	Config            *config.Config
-	ConfigRepository  config.IConfigRepository
+	ConfigUseCase     *usecase.ConfigUseCase
 	TimeStatusUseCase *usecase.TimeStatusUseCase
 }
 
-func NewAppSingleton(tsUseCase *usecase.TimeStatusUseCase, cfgRepo config.IConfigRepository) *App {
+func NewAppSingleton(tsUseCase *usecase.TimeStatusUseCase, cfgUseCase *usecase.ConfigUseCase) *App {
 	if app == nil {
-		cfg, _ := cfgRepo.LoadConfig()
+		cfg, _ := cfgUseCase.LoadConfig()
 		app = &App{
 			TimeStatusUseCase: tsUseCase,
 			Config:            cfg,
-			ConfigRepository:  cfgRepo,
+			ConfigUseCase:     cfgUseCase,
 		}
 	}
 	return app

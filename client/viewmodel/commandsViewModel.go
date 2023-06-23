@@ -2,7 +2,6 @@ package viewmodel
 
 import (
 	"attendance-record/client/model"
-	"fmt"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -12,6 +11,7 @@ import (
 )
 
 type CommandsViewModel struct {
+	api           model.ITimeStatusApi
 	receiver      *model.TimeStatusReceiver
 	btnWorking    *widget.Button
 	btnResting    *widget.Button
@@ -20,19 +20,19 @@ type CommandsViewModel struct {
 }
 
 func NewCommandsViewModel(
-	receiver *model.TimeStatusReceiver,
-	btnW *widget.Button,
-	btnR *widget.Button,
-	btnS *widget.Button,
+	app *model.AppContainer,
+	btnW,
+	btnR,
+	btnGetCurrent *widget.Button,
 	w fyne.Window,
 ) *CommandsViewModel {
-	vm := &CommandsViewModel{receiver, btnW, btnR, btnS, w}
+	vm := &CommandsViewModel{app.Api, app.Receiver, btnW, btnR, btnGetCurrent, w}
 	vm.receiver.AddUpdateFunc(vm.updateView)
 	vm.updateView()
 
 	btnW.OnTapped = vm.OnPressBtnWorking
 	btnR.OnTapped = vm.OnPressBtnResting
-	btnS.OnTapped = vm.OnPressBtnSync
+	btnGetCurrent.OnTapped = vm.OnPressBtnGetCurrent
 
 	return vm
 }
@@ -42,6 +42,7 @@ func (vm *CommandsViewModel) OnPressBtnWorking() {
 		dialog.ShowConfirm("退勤", "退勤しますか？", func(a bool) {
 			if a {
 				vm.receiver.ToggleWork()
+				vm.OnPressBtnGetCurrent()
 			}
 		}, vm.window)
 	} else {
@@ -53,11 +54,24 @@ func (vm *CommandsViewModel) OnPressBtnResting() {
 	vm.receiver.ToggleRest()
 }
 
-func (vm *CommandsViewModel) OnPressBtnSync() {
+func (vm *CommandsViewModel) OnPressBtnGetCurrent() {
 	vm.receiver.SetCurrentStatus()
 	s := vm.receiver.Status
-	msg := fmt.Sprintf("勤務時間: %s\n休憩時間: %s\n", s.Work.TotalTime, s.Rest.TotalTime)
-	dialog.ShowInformation("同期しました", msg, vm.window)
+	now := time.Now()
+
+	overtimeTotal, err := vm.api.GetOvertimeByMonth(now.Year(), now.Month())
+	if err != nil {
+		dialog.ShowError(err, vm.window)
+		return
+	}
+
+	form := widget.NewForm(
+		widget.NewFormItem("勤務時間", widget.NewLabel(s.Work.TotalTime.String())),
+		widget.NewFormItem("休憩時間", widget.NewLabel(s.Rest.TotalTime.String())),
+		widget.NewFormItem("今日の残業時間", widget.NewLabel(model.Config.Overtime(s.Work.TotalTime).String())),
+		widget.NewFormItem("今月の残業時間", widget.NewLabel(overtimeTotal.String())),
+	)
+	dialog.ShowCustom("本日の勤務記録", "OK", form, vm.window)
 }
 
 func (vm *CommandsViewModel) updateView() {

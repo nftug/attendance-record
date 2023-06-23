@@ -43,7 +43,7 @@ func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
 					l.SetText(item.TotalTime.String())
 				case 5:
 					if item.Type == enum.Work {
-						l.SetText(model.Config.OverTime(item.TotalTime).String())
+						l.SetText(model.Config.Overtime(item.TotalTime).String())
 					} else {
 						l.SetText("")
 					}

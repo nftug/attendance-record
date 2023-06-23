@@ -16,4 +16,5 @@ type ITimeStatusApi interface {
 	Delete(t enum.TimeStatusType, id uuid.UUID) error
 	Update(t enum.TimeStatusType, id uuid.UUID, cmd dto.TimeStatusCommandDto) error
 	Create(t enum.TimeStatusType, cmd dto.TimeStatusCommandDto) error
+	GetOvertimeByMonth(year int, month time.Month) (*time.Duration, error)
 }

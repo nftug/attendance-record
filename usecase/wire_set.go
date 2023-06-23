@@ -2,4 +2,4 @@ package usecase
 
 import "github.com/google/wire"
 
-var Set = wire.NewSet(NewTimeStatusUseCase)
+var Set = wire.NewSet(NewTimeStatusUseCase, NewConfigUseCase)

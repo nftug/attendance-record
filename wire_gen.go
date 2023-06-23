@@ -25,9 +25,10 @@ func initApp() *shared.App {
 	iRestRepository := repository.NewRestSqlRepository(db)
 	timeStatusRepositorySet := interfaces.NewTimeStatusRepositorySet(iWorkRepository, iRestRepository)
 	timeStatusService := service.NewTimeStatusService(timeStatusRepositorySet)
-	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet)
 	iConfigRepository := repository.NewConfigRepository()
-	app := shared.NewAppSingleton(timeStatusUseCase, iConfigRepository)
+	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet, iConfigRepository)
+	configUseCase := usecase.NewConfigUseCase(iConfigRepository)
+	app := shared.NewAppSingleton(timeStatusUseCase, configUseCase)
 	return app
 }
 
@@ -37,11 +38,12 @@ func initClient() *client.Client {
 	iRestRepository := repository.NewRestSqlRepository(db)
 	timeStatusRepositorySet := interfaces.NewTimeStatusRepositorySet(iWorkRepository, iRestRepository)
 	timeStatusService := service.NewTimeStatusService(timeStatusRepositorySet)
-	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet)
 	iConfigRepository := repository.NewConfigRepository()
-	app := shared.NewAppSingleton(timeStatusUseCase, iConfigRepository)
+	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet, iConfigRepository)
+	configUseCase := usecase.NewConfigUseCase(iConfigRepository)
+	app := shared.NewAppSingleton(timeStatusUseCase, configUseCase)
 	iTimeStatusApi := model.NewTimeStatusLocalApi(app)
-	iConfigApi := model.NewConfigLocalApi(iConfigRepository)
+	iConfigApi := model.NewConfigLocalApi(app)
 	clientClient := client.NewClient(iTimeStatusApi, iConfigApi)
 	return clientClient
 }

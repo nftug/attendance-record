@@ -45,3 +45,7 @@ func (api *timeStatusLocalApi) Update(t enum.TimeStatusType, id uuid.UUID, cmd d
 func (api *timeStatusLocalApi) Create(t enum.TimeStatusType, cmd dto.TimeStatusCommandDto) error {
 	return api.usecase.Create(t, cmd)
 }
+
+func (api *timeStatusLocalApi) GetOvertimeByMonth(year int, month time.Month) (*time.Duration, error) {
+	return api.usecase.GetOvertimeByMonth(year, month)
+}

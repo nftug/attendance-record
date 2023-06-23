@@ -13,26 +13,28 @@ import (
 )
 
 type HistoryViewModel struct {
-	api          model.ITimeStatusApi
-	receiver     *model.TimeStatusReceiver
-	update       []func()
-	Data         []dto.TimeStatusDto
-	SelIdx       int
-	CurDt        time.Time
-	CurDtData    binding.String
-	Window       fyne.Window
-	OnUnselected func()
+	api           model.ITimeStatusApi
+	receiver      *model.TimeStatusReceiver
+	update        []func()
+	Data          []dto.TimeStatusDto
+	SelIdx        int
+	CurDt         time.Time
+	CurDtData     binding.String
+	CurDtOvertime binding.String
+	Window        fyne.Window
+	OnUnselected  func()
 }
 
 func NewHistoryViewModel(a *model.AppContainer, w fyne.Window) *HistoryViewModel {
 	now := time.Now()
 	vm := &HistoryViewModel{
-		api:       a.Api,
-		receiver:  a.Receiver,
-		Window:    w,
-		SelIdx:    -1,
-		CurDt:     time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local),
-		CurDtData: binding.NewString(),
+		api:           a.Api,
+		receiver:      a.Receiver,
+		Window:        w,
+		SelIdx:        -1,
+		CurDt:         time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local),
+		CurDtData:     binding.NewString(),
+		CurDtOvertime: binding.NewString(),
 	}
 	a.Receiver.AddUpdateOuterFunc(vm.InvokeUpdate)
 
@@ -46,12 +48,20 @@ func (vm *HistoryViewModel) AddUpdateFunc(f ...func()) {
 
 func (vm *HistoryViewModel) InvokeUpdate() {
 	vm.CurDtData.Set(vm.CurDt.Format("2006年 01月"))
+
 	d, err := vm.api.FindByMonth(vm.CurDt.Year(), vm.CurDt.Month())
 	if err != nil {
 		dialog.ShowError(err, vm.Window)
 		return
 	}
 	vm.Data = d
+
+	overtimeTotal, err := vm.api.GetOvertimeByMonth(vm.CurDt.Year(), vm.CurDt.Month())
+	if err != nil {
+		dialog.ShowError(err, vm.Window)
+		return
+	}
+	vm.CurDtOvertime.Set("総残業時間：" + overtimeTotal.String())
 
 	for _, f := range vm.update {
 		f()
@@ -65,6 +75,12 @@ func (vm *HistoryViewModel) NextMonth() {
 
 func (vm *HistoryViewModel) PrevMonth() {
 	vm.CurDt = vm.CurDt.AddDate(0, -1, 0)
+	vm.InvokeUpdate()
+}
+
+func (vm *HistoryViewModel) CurrentMonth() {
+	now := time.Now()
+	vm.CurDt = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
 	vm.InvokeUpdate()
 }
 

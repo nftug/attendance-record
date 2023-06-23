@@ -7,16 +7,22 @@ import (
 	"attendance-record/domain/service"
 	"time"
 
+	"github.com/ahmetb/go-linq"
 	"github.com/google/uuid"
 )
 
 type TimeStatusUseCase struct {
-	service *service.TimeStatusService
-	repo    *interfaces.TimeStatusRepositorySet
+	service    *service.TimeStatusService
+	repo       *interfaces.TimeStatusRepositorySet
+	configRepo interfaces.IConfigRepository
 }
 
-func NewTimeStatusUseCase(service *service.TimeStatusService, repo *interfaces.TimeStatusRepositorySet) *TimeStatusUseCase {
-	return &TimeStatusUseCase{service, repo}
+func NewTimeStatusUseCase(
+	service *service.TimeStatusService,
+	repo *interfaces.TimeStatusRepositorySet,
+	configRepo interfaces.IConfigRepository,
+) *TimeStatusUseCase {
+	return &TimeStatusUseCase{service, repo, configRepo}
 }
 
 func (u *TimeStatusUseCase) ToggleWork() error {
@@ -54,4 +60,24 @@ func (u *TimeStatusUseCase) Update(t enum.TimeStatusType, id uuid.UUID, cmd dto.
 	}
 	repo.Update(*item)
 	return nil
+}
+
+func (u *TimeStatusUseCase) GetOvertimeByMonth(year int, month time.Month) (*time.Duration, error) {
+	data, err := u.service.FindByMonth(year, month)
+	if err != nil {
+		return nil, err
+	}
+
+	config, err := u.configRepo.LoadConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	overtime := linq.From(data).
+		WhereT(func(x dto.TimeStatusDto) bool { return x.Type == enum.Work }).
+		SelectT(func(x dto.TimeStatusDto) int64 { return int64(config.Overtime(x.TotalTime)) }).
+		SumInts()
+
+	p := time.Duration(overtime)
+	return &p, nil
 }

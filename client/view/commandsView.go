@@ -10,19 +10,19 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewCommandsView(a *model.AppContainer, w fyne.Window) *fyne.Container {
+func NewCommandsView(a *model.AppContainer, w fyne.Window) fyne.CanvasObject {
 	btnWorking := widget.NewButton("", func() {})
 	btnResting := widget.NewButton("", func() {})
-	btnSync := widget.NewButton("同期", func() {})
+	btnGetCurrent := widget.NewButton("現在の状態", func() {})
 	btnHistory := widget.NewButton("履歴", func() { NewHistoryWindow(a) })
 
-	viewmodel.NewCommandsViewModel(a.Receiver, btnWorking, btnResting, btnSync, w)
+	viewmodel.NewCommandsViewModel(a, btnWorking, btnResting, btnGetCurrent, w)
 
 	return container.New(
 		layout.NewGridLayoutWithColumns(2),
 		btnWorking,
 		btnResting,
-		btnSync,
+		btnGetCurrent,
 		btnHistory,
 	)
 }

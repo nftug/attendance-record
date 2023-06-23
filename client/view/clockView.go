@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
-func NewClockView() *fyne.Container {
+func NewClockView() fyne.CanvasObject {
 	clock := canvas.NewText("", theme.ForegroundColor())
 	clock.TextSize = 72
 

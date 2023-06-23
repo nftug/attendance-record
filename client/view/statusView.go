@@ -9,11 +9,12 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewStatusView(a *model.AppContainer) *fyne.Container {
+func NewStatusView(a *model.AppContainer) fyne.CanvasObject {
 	vm := viewmodel.NewStatusViewModel(a)
-	return container.NewVBox(
-		widget.NewLabelWithData(vm.WorkTotal),
-		widget.NewLabelWithData(vm.RestTotal),
-		widget.NewLabelWithData(vm.OverTime),
+	form := widget.NewForm(
+		widget.NewFormItem("勤務時間", widget.NewLabelWithData(vm.WorkTotal)),
+		widget.NewFormItem("休憩時間", widget.NewLabelWithData(vm.RestTotal)),
+		widget.NewFormItem("残業時間", widget.NewLabelWithData(vm.Overtime)),
 	)
+	return container.NewPadded(form)
 }

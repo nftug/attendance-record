@@ -2,6 +2,7 @@ package repository
 
 import (
 	"attendance-record/domain/config"
+	"attendance-record/domain/interfaces"
 	"encoding/json"
 	"log"
 	"os"
@@ -11,7 +12,7 @@ type configRepository struct{}
 
 const ConfigFile = "config.json"
 
-func NewConfigRepository() config.IConfigRepository {
+func NewConfigRepository() interfaces.IConfigRepository {
 	return &configRepository{}
 }
 

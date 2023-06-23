@@ -1,21 +1,25 @@
 package model
 
-import "attendance-record/domain/config"
+import (
+	"attendance-record/domain/config"
+	"attendance-record/shared"
+	"attendance-record/usecase"
+)
 
 type configLocalApi struct {
-	repository config.IConfigRepository
+	usecase *usecase.ConfigUseCase
 }
 
 var Config *config.Config
 
-func NewConfigLocalApi(r config.IConfigRepository) IConfigApi {
-	api := &configLocalApi{r}
-	Config, _ = api.LoadConfig()
+func NewConfigLocalApi(a *shared.App) IConfigApi {
+	api := &configLocalApi{a.ConfigUseCase}
+	Config = a.Config
 	return api
 }
 
 func (api *configLocalApi) LoadConfig() (*config.Config, error) {
-	cfg, err := api.repository.LoadConfig()
+	cfg, err := api.usecase.LoadConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +28,7 @@ func (api *configLocalApi) LoadConfig() (*config.Config, error) {
 }
 
 func (api *configLocalApi) SaveConfig(cfg config.Config) error {
-	if err := api.repository.SaveConfig(cfg); err != nil {
+	if err := api.usecase.SaveConfig(cfg); err != nil {
 		return err
 	}
 	Config = &cfg
