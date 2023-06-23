@@ -6,17 +6,14 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
 func NewStatusView(a *model.AppContainer) *fyne.Container {
-	workTotal := binding.NewString()
-	restTotal := binding.NewString()
-	vm := viewmodel.NewStatusViewModel(a.Receiver, workTotal, restTotal)
-
-	lWorkTotal := widget.NewLabelWithData(any(vm.WorkTotal).(binding.String))
-	lRestTotal := widget.NewLabelWithData(any(vm.RestTotal).(binding.String))
-
-	return container.NewVBox(lWorkTotal, lRestTotal)
+	vm := viewmodel.NewStatusViewModel(a)
+	return container.NewVBox(
+		widget.NewLabelWithData(vm.WorkTotal),
+		widget.NewLabelWithData(vm.RestTotal),
+		widget.NewLabelWithData(vm.OverTime),
+	)
 }

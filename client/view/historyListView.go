@@ -1,6 +1,7 @@
 package view
 
 import (
+	"attendance-record/client/model"
 	"attendance-record/client/viewmodel"
 	"attendance-record/domain/enum"
 	"attendance-record/shared/util"
@@ -10,10 +11,10 @@ import (
 )
 
 func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
-	colName := []string{"日付", "種類", "開始時刻", "終了時刻", "時間数"}
+	colName := []string{"日付", "種類", "開始時刻", "終了時刻", "経過時間", "残業時間"}
 
 	list := widget.NewTable(
-		func() (int, int) { return len(vm.Data) + 1, 5 },
+		func() (int, int) { return len(vm.Data) + 1, 6 },
 		func() fyne.CanvasObject {
 			return widget.NewLabel("wide content")
 		},
@@ -40,6 +41,12 @@ func NewHistoryListView(vm *viewmodel.HistoryViewModel) fyne.CanvasObject {
 					l.SetText(util.FormatDateTime(item.EndedOn))
 				case 4:
 					l.SetText(item.TotalTime.String())
+				case 5:
+					if item.Type == enum.Work {
+						l.SetText(model.Config.OverTime(item.TotalTime).String())
+					} else {
+						l.SetText("")
+					}
 				}
 			}
 		},

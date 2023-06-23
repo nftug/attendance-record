@@ -15,4 +15,5 @@ var Set = wire.NewSet(
 	// repository.NewWorkJsonRepository,
 	// repository.NewRestJsonRepository,
 	NewDBSingleton,
+	repository.NewConfigRepository,
 )

@@ -11,11 +11,12 @@ import (
 )
 
 type Client struct {
-	Api model.ITimeStatusApi
+	api    model.ITimeStatusApi
+	cfgApi model.IConfigApi
 }
 
-func NewClient(api model.ITimeStatusApi) *Client {
-	return &Client{Api: api}
+func NewClient(api model.ITimeStatusApi, cfgApi model.IConfigApi) *Client {
+	return &Client{api: api, cfgApi: cfgApi}
 }
 
 func (c *Client) Run() {
@@ -23,7 +24,7 @@ func (c *Client) Run() {
 	a.Settings().SetTheme(&resource.MyTheme{})
 	w := a.NewWindow("勤怠記録")
 
-	appContainer := model.NewAppContainer(c.Api, a)
+	appContainer := model.NewAppContainer(c.api, c.cfgApi, a)
 
 	if desk, ok := a.(desktop.App); ok {
 		m := fyne.NewMenu(

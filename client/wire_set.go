@@ -7,7 +7,11 @@ import (
 	"github.com/google/wire"
 )
 
-var localApiSet = wire.NewSet(shared.Set, model.NewLocalApi)
+var localApiSet = wire.NewSet(
+	shared.Set,
+	model.NewTimeStatusLocalApi,
+	model.NewConfigLocalApi,
+)
 
 var Set = wire.NewSet(
 	localApiSet,

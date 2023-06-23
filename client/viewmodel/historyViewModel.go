@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/dialog"
 )
 
@@ -18,12 +19,12 @@ type HistoryViewModel struct {
 	Data         []dto.TimeStatusDto
 	SelIdx       int
 	CurDt        time.Time
-	CurDtData    Binding[string]
+	CurDtData    binding.String
 	Window       fyne.Window
 	OnUnselected func()
 }
 
-func NewHistoryViewModel(a *model.AppContainer, w fyne.Window, curDtData Binding[string]) *HistoryViewModel {
+func NewHistoryViewModel(a *model.AppContainer, w fyne.Window) *HistoryViewModel {
 	now := time.Now()
 	vm := &HistoryViewModel{
 		api:       a.Api,
@@ -31,7 +32,7 @@ func NewHistoryViewModel(a *model.AppContainer, w fyne.Window, curDtData Binding
 		Window:    w,
 		SelIdx:    -1,
 		CurDt:     time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local),
-		CurDtData: curDtData,
+		CurDtData: binding.NewString(),
 	}
 	a.Receiver.AddUpdateOuterFunc(vm.InvokeUpdate)
 

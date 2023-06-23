@@ -14,7 +14,7 @@ type timeStatusLocalApi struct {
 	usecase *usecase.TimeStatusUseCase
 }
 
-func NewLocalApi(a *shared.App) ITimeStatusApi {
+func NewTimeStatusLocalApi(a *shared.App) ITimeStatusApi {
 	return &timeStatusLocalApi{usecase: a.TimeStatusUseCase}
 }
 
