@@ -5,9 +5,7 @@ import (
 	"attendance-record/client/resource"
 	"attendance-record/client/view"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/driver/desktop"
 )
 
 type Client struct {
@@ -24,17 +22,9 @@ func (c *Client) Run() {
 	a.Settings().SetTheme(&resource.MyTheme{})
 	w := a.NewWindow("勤怠記録")
 
-	appContainer := model.NewAppContainer(c.api, c.cfgApi, a)
+	ac := model.NewAppContainer(c.api, c.cfgApi, a)
+	view.SetSystemTrayMenu(ac, w)
 
-	if desk, ok := a.(desktop.App); ok {
-		m := fyne.NewMenu(
-			"勤怠記録",
-			fyne.NewMenuItem("表示", func() { w.Show() }),
-		)
-		desk.SetSystemTrayMenu(m)
-	}
-	w.SetCloseIntercept(func() { w.Hide() })
-
-	w.SetContent(view.NewTimeStatusView(appContainer, w))
+	w.SetContent(view.NewTimeStatusView(ac, w))
 	w.ShowAndRun()
 }

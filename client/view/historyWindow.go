@@ -29,7 +29,7 @@ func NewHistoryWindow(a *model.AppContainer) {
 		table,
 	))
 
-	window.SetCloseIntercept(func() { window.Hide() })
+	window.SetCloseIntercept(window.Hide)
 	window.Resize(fyne.NewSize(650, 500))
 	window.Show()
 }
