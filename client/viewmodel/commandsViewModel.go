@@ -7,7 +7,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"github.com/multiplay/go-cticker"
 )
 
 type CommandsViewModel struct {
@@ -80,8 +79,6 @@ func (vm *CommandsViewModel) updateView() {
 }
 
 func (vm *CommandsViewModel) updateByIsActive() {
-	<-cticker.New(time.Second, 100*time.Millisecond).C
-
 	s := vm.receiver.Status
 
 	if s.Work.IsActive {
@@ -106,8 +103,6 @@ func (vm *CommandsViewModel) updateByIsActive() {
 }
 
 func (vm *CommandsViewModel) updateByBtnEnabled() {
-	<-cticker.New(time.Second, 100*time.Millisecond).C
-
 	s := vm.receiver.Status
 
 	if s.Work.IsToggleEnabled {

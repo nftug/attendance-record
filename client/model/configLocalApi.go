@@ -14,7 +14,7 @@ var Config *config.Config
 
 func NewConfigLocalApi(a *shared.App) IConfigApi {
 	api := &configLocalApi{a.ConfigUseCase}
-	Config = a.Config
+	Config, _ = api.LoadConfig()
 	return api
 }
 

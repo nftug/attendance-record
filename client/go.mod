@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	fyne.io/fyne/v2 v2.3.5
+	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.5.0
 	github.com/multiplay/go-cticker v0.0.0-20190411183326-bd2f021b1c08
 )
