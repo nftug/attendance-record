@@ -7,14 +7,13 @@ import (
 	"github.com/mitchellh/go-ps"
 )
 
-func CheckIsAppRunning() {
+func CheckIfAppRunning() {
 	pid := os.Getpid()
-	proc, _ := ps.FindProcess(pid)
-	procName := proc.Executable()
+	curProc, _ := ps.FindProcess(pid)
 
 	procs, _ := ps.Processes()
 	for _, p := range procs {
-		if p.Executable() == procName && p.Pid() != pid {
+		if p.Executable() == curProc.Executable() && p.Pid() != pid {
 			log.Fatal("the app is already running")
 		}
 	}

@@ -3,7 +3,7 @@ package main
 import "attendance-record/shared/util"
 
 func main() {
-	util.CheckIsAppRunning()
+	util.CheckIfAppRunning()
 
 	c := initClient()
 	c.Run()
