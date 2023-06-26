@@ -17,28 +17,6 @@ func NewConfigRepository() interfaces.IConfigRepository {
 }
 
 func (r *configRepository) LoadConfig() (*config.Config, error) {
-	f, err := r.openFile()
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	var cfg config.Config
-	err = json.NewDecoder(f).Decode(&cfg)
-	return &cfg, err
-}
-
-func (r *configRepository) SaveConfig(cfg config.Config) error {
-	f, err := r.openFile()
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return json.NewEncoder(f).Encode(cfg)
-}
-
-func (r *configRepository) openFile() (*os.File, error) {
 	if err := r.initConfig(); err != nil {
 		return nil, err
 	}
@@ -49,7 +27,21 @@ func (r *configRepository) openFile() (*os.File, error) {
 		return nil, err
 	}
 
-	return f, err
+	defer f.Close()
+
+	var cfg config.Config
+	err = json.NewDecoder(f).Decode(&cfg)
+	return &cfg, err
+}
+
+func (r *configRepository) SaveConfig(cfg config.Config) error {
+	f, err := os.Create(ConfigFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return json.NewEncoder(f).Encode(cfg)
 }
 
 func (r *configRepository) initConfig() error {
@@ -57,10 +49,10 @@ func (r *configRepository) initConfig() error {
 		return nil
 	}
 
-	f, er := os.Create(ConfigFile)
-	if er != nil {
+	f, err := os.Create(ConfigFile)
+	if err != nil {
 		log.Fatal("failed to create config.json")
-		return er
+		return err
 	}
 	defer f.Close()
 

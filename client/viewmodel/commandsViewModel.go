@@ -6,32 +6,30 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 type CommandsViewModel struct {
-	api           model.ITimeStatusApi
-	receiver      *model.TimeStatusReceiver
-	btnWorking    *widget.Button
-	btnResting    *widget.Button
-	btnGetCurrent *widget.Button
-	window        fyne.Window
+	api        model.ITimeStatusApi
+	receiver   *model.TimeStatusReceiver
+	btnWorking *widget.Button
+	btnResting *widget.Button
+	window     fyne.Window
 }
 
 func NewCommandsViewModel(
 	app *model.AppContainer,
 	btnW,
-	btnR,
-	btnGetCurrent *widget.Button,
+	btnR *widget.Button,
 	w fyne.Window,
 ) *CommandsViewModel {
-	vm := &CommandsViewModel{app.Api, app.Receiver, btnW, btnR, btnGetCurrent, w}
+	vm := &CommandsViewModel{app.Api, app.Receiver, btnW, btnR, w}
 	vm.receiver.AddUpdateFunc(vm.updateView)
 	vm.updateView()
 
 	btnW.OnTapped = vm.OnPressBtnWorking
 	btnR.OnTapped = vm.OnPressBtnResting
-	btnGetCurrent.OnTapped = vm.OnPressBtnGetCurrent
 
 	return vm
 }
@@ -41,7 +39,7 @@ func (vm *CommandsViewModel) OnPressBtnWorking() {
 		dialog.ShowConfirm("退勤", "退勤しますか？", func(a bool) {
 			if a {
 				vm.receiver.ToggleWork()
-				vm.OnPressBtnGetCurrent()
+				vm.ShowCurrentStatusDialog()
 			}
 		}, vm.window)
 	} else {
@@ -53,7 +51,7 @@ func (vm *CommandsViewModel) OnPressBtnResting() {
 	vm.receiver.ToggleRest()
 }
 
-func (vm *CommandsViewModel) OnPressBtnGetCurrent() {
+func (vm *CommandsViewModel) ShowCurrentStatusDialog() {
 	vm.receiver.SetCurrentStatus()
 	s := vm.receiver.Status
 	now := time.Now()
@@ -83,8 +81,10 @@ func (vm *CommandsViewModel) updateByIsActive() {
 
 	if s.Work.IsActive {
 		vm.btnWorking.SetText("退勤")
+		vm.btnWorking.SetIcon(theme.LogoutIcon())
 	} else {
 		vm.btnWorking.SetText("出勤")
+		vm.btnWorking.SetIcon(theme.LoginIcon())
 	}
 
 	if s.Rest.IsActive {

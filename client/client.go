@@ -26,5 +26,6 @@ func (c *Client) Run() {
 	view.SetSystemTrayMenu(ac, w)
 
 	w.SetContent(view.NewTimeStatusView(ac, w))
+	w.SetFixedSize(true)
 	w.ShowAndRun()
 }

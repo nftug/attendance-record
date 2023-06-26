@@ -15,7 +15,10 @@ func SetSystemTrayMenu(a *model.AppContainer, w fyne.Window) {
 		m := fyne.NewMenu(
 			"勤怠記録",
 			fyne.NewMenuItem("表示", w.Show),
-			fyne.NewMenuItem("打刻履歴", func() { NewHistoryWindow(a) }),
+			fyne.NewMenuItem("打刻履歴", func() { ShowHistoryWindow(a) }),
+			fyne.NewMenuItemSeparator(),
+			fyne.NewMenuItem("設定", func() { ShowPreferenceWindow(a) }),
+			fyne.NewMenuItem("バージョン情報", func() { ShowVersionInfoDialog(w) }),
 			fyne.NewMenuItemSeparator(),
 			qMenu,
 		)

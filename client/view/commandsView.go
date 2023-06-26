@@ -7,22 +7,23 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
 func NewCommandsView(a *model.AppContainer, w fyne.Window) fyne.CanvasObject {
-	btnWorking := widget.NewButton("", func() {})
+	btnWorking := widget.NewButtonWithIcon("", theme.LoginIcon(), func() {})
 	btnResting := widget.NewButton("", func() {})
-	btnGetCurrent := widget.NewButton("現在の状態", func() {})
-	btnHistory := widget.NewButton("履歴", func() { NewHistoryWindow(a) })
+	btnPreference := widget.NewButton("設定", func() { ShowPreferenceWindow(a) })
+	btnHistory := widget.NewButton("履歴", func() { ShowHistoryWindow(a) })
 
-	viewmodel.NewCommandsViewModel(a, btnWorking, btnResting, btnGetCurrent, w)
+	viewmodel.NewCommandsViewModel(a, btnWorking, btnResting, w)
 
 	return container.New(
 		layout.NewGridLayoutWithColumns(2),
 		btnWorking,
 		btnResting,
-		btnGetCurrent,
+		btnPreference,
 		btnHistory,
 	)
 }
