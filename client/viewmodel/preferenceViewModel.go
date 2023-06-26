@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/dialog"
+	"github.com/skratchdot/open-golang/open"
 )
 
 type PreferenceViewModel struct {
@@ -16,12 +17,15 @@ type PreferenceViewModel struct {
 	config           config.Config
 	workHrsData      binding.Int
 	WorkHrsLabelData binding.String
+	LocalPathData    binding.String
 }
 
 func NewPreferenceViewModel(a *model.AppContainer, w fyne.Window) *PreferenceViewModel {
 	config, _ := a.ConfigApi.LoadConfig()
 	workHrsData := binding.NewInt()
 	workHrsLabelData := binding.NewSprintf("%d時間", workHrsData)
+	localPathData := binding.NewString()
+	localPathData.Set(a.LocalPath.GetLocalPath())
 
 	vm := PreferenceViewModel{
 		api:              a.ConfigApi,
@@ -30,6 +34,7 @@ func NewPreferenceViewModel(a *model.AppContainer, w fyne.Window) *PreferenceVie
 		config:           *config,
 		workHrsData:      workHrsData,
 		WorkHrsLabelData: workHrsLabelData,
+		LocalPathData:    localPathData,
 	}
 
 	vm.OnChangeWorkHrsData(float64(config.WorkHours))
@@ -47,6 +52,11 @@ func (vm *PreferenceViewModel) GetWorkHour() float64 {
 func (vm *PreferenceViewModel) OnChangeWorkHrsData(val float64) {
 	vm.config.WorkHours = int(val)
 	vm.workHrsData.Set(int(val))
+}
+
+func (vm *PreferenceViewModel) OpenLocalPath() {
+	path, _ := vm.LocalPathData.Get()
+	open.Start(path)
 }
 
 func (vm *PreferenceViewModel) OnClickApply() {

@@ -11,6 +11,7 @@ import (
 )
 
 func NewPreferenceTabView(vm *viewmodel.PreferenceViewModel) fyne.CanvasObject {
+	// Work hours
 	workHrsSlider := widget.NewSlider(1.0, 8.0)
 	workHrsSlider.Value = vm.GetWorkHour()
 	workHrsSlider.OnChanged = vm.OnChangeWorkHrsData
@@ -21,8 +22,18 @@ func NewPreferenceTabView(vm *viewmodel.PreferenceViewModel) fyne.CanvasObject {
 		workHrsSlider,
 	)
 
+	// Local path
+	localPathTitleLabel := widget.NewLabel("データの保存先")
+	localPathTitleLabel.TextStyle = fyne.TextStyle{Bold: true}
+	localPathContainer := container.NewVBox(
+		localPathTitleLabel,
+		widget.NewLabelWithData(vm.LocalPathData),
+		widget.NewButtonWithIcon("開く", theme.FolderOpenIcon(), vm.OpenLocalPath),
+	)
+
 	return container.NewAppTabs(
 		container.NewTabItem("勤務時間", workHrsContainer),
+		container.NewTabItem("保存先", localPathContainer),
 	)
 }
 

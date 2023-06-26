@@ -27,8 +27,7 @@ func ShowPreferenceWindow(app *model.AppContainer) {
 	))
 
 	preferenceWindow.SetCloseIntercept(preferenceWindow.Hide)
-	preferenceWindow.Resize(fyne.NewSize(400, 400))
-	preferenceWindow.SetFixedSize(true)
+	preferenceWindow.Resize(fyne.NewSize(500, 400))
 
 	preferenceWindow.Show()
 }

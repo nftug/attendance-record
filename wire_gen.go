@@ -12,6 +12,7 @@ import (
 	"attendance-record/domain/interfaces"
 	"attendance-record/domain/service"
 	"attendance-record/infrastructure"
+	"attendance-record/infrastructure/localpath"
 	"attendance-record/infrastructure/repository"
 	"attendance-record/shared"
 	"attendance-record/usecase"
@@ -20,12 +21,13 @@ import (
 // Injectors from wire.go:
 
 func initApp() *shared.App {
-	db := infrastructure.NewDBSingleton()
+	localPathService := localpath.NewLocalPathService()
+	db := infrastructure.NewDBSingleton(localPathService)
 	iWorkRepository := repository.NewWorkSqlRepository(db)
 	iRestRepository := repository.NewRestSqlRepository(db)
 	timeStatusRepositorySet := interfaces.NewTimeStatusRepositorySet(iWorkRepository, iRestRepository)
 	timeStatusService := service.NewTimeStatusService(timeStatusRepositorySet)
-	iConfigRepository := repository.NewConfigRepository()
+	iConfigRepository := repository.NewConfigRepository(localPathService)
 	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet, iConfigRepository)
 	configUseCase := usecase.NewConfigUseCase(iConfigRepository)
 	app := shared.NewAppSingleton(timeStatusUseCase, configUseCase)
@@ -33,17 +35,18 @@ func initApp() *shared.App {
 }
 
 func initClient() *client.Client {
-	db := infrastructure.NewDBSingleton()
+	localPathService := localpath.NewLocalPathService()
+	db := infrastructure.NewDBSingleton(localPathService)
 	iWorkRepository := repository.NewWorkSqlRepository(db)
 	iRestRepository := repository.NewRestSqlRepository(db)
 	timeStatusRepositorySet := interfaces.NewTimeStatusRepositorySet(iWorkRepository, iRestRepository)
 	timeStatusService := service.NewTimeStatusService(timeStatusRepositorySet)
-	iConfigRepository := repository.NewConfigRepository()
+	iConfigRepository := repository.NewConfigRepository(localPathService)
 	timeStatusUseCase := usecase.NewTimeStatusUseCase(timeStatusService, timeStatusRepositorySet, iConfigRepository)
 	configUseCase := usecase.NewConfigUseCase(iConfigRepository)
 	app := shared.NewAppSingleton(timeStatusUseCase, configUseCase)
 	iTimeStatusApi := model.NewTimeStatusLocalApi(app)
 	iConfigApi := model.NewConfigLocalApi(app)
-	clientClient := client.NewClient(iTimeStatusApi, iConfigApi)
+	clientClient := client.NewClient(iTimeStatusApi, iConfigApi, localPathService)
 	return clientClient
 }

@@ -1,7 +1,7 @@
 package view
 
 import (
-	"attendance-record/shared"
+	"attendance-record/shared/appinfo"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
@@ -9,6 +9,6 @@ import (
 
 func ShowVersionInfoDialog(w fyne.Window) {
 	w.Show()
-	msg := "勤怠記録アプリ (attendance-record)\n" + "ver " + shared.Version
+	msg := "勤怠記録アプリ (attendance-record)\n" + "ver " + appinfo.Version
 	dialog.ShowInformation("バージョン情報", msg, w)
 }

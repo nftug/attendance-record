@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.5.0
 	github.com/multiplay/go-cticker v0.0.0-20190411183326-bd2f021b1c08
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 )
 
 require (

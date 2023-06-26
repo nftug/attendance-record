@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"attendance-record/infrastructure/localpath"
 	"attendance-record/infrastructure/repository"
 
 	"github.com/google/wire"
@@ -12,8 +13,7 @@ var Set = wire.NewSet(
 	// repository.NewRestDummyRepository,
 	repository.NewWorkSqlRepository,
 	repository.NewRestSqlRepository,
-	// repository.NewWorkJsonRepository,
-	// repository.NewRestJsonRepository,
 	NewDBSingleton,
 	repository.NewConfigRepository,
+	localpath.NewLocalPathService,
 )
