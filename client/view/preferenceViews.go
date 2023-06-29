@@ -1,6 +1,7 @@
 package view
 
 import (
+	"attendance-record/client/component"
 	"attendance-record/client/viewmodel"
 
 	"fyne.io/fyne/v2"
@@ -16,10 +17,20 @@ func NewPreferenceTabView(vm *viewmodel.PreferenceViewModel) fyne.CanvasObject {
 	workHrsSlider.Value = vm.GetWorkHour()
 	workHrsSlider.OnChanged = vm.OnChangeWorkHrsData
 	workHrsLabel := widget.NewLabelWithData(vm.WorkHrsLabelData)
-
 	workHrsContainer := container.NewVBox(
 		widget.NewForm(widget.NewFormItem("標準の勤務時間", workHrsLabel)),
 		workHrsSlider,
+	)
+
+	// Alarm
+	workAlarmCheck := widget.NewCheckWithData("有効にする", vm.WorkAlarmEnabled)
+	workAlarmMinEntry := component.NewNumericalEntryWithData(vm.WorkAlarmBeforeMin)
+	workAlarmMin := widget.NewForm(
+		widget.NewFormItem("通知のタイミング",
+			container.NewHBox(workAlarmMinEntry, widget.NewLabel("分前")),
+		))
+	alarmContainer := container.NewVBox(
+		widget.NewCard("", "退勤前アラーム", container.NewVBox(workAlarmCheck, workAlarmMin)),
 	)
 
 	// Local path
@@ -33,6 +44,7 @@ func NewPreferenceTabView(vm *viewmodel.PreferenceViewModel) fyne.CanvasObject {
 
 	return container.NewAppTabs(
 		container.NewTabItem("勤務時間", workHrsContainer),
+		container.NewTabItem("アラーム", alarmContainer),
 		container.NewTabItem("保存先", localPathContainer),
 	)
 }

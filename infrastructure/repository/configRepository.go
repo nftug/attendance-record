@@ -59,6 +59,17 @@ func (r *configRepository) initConfig() error {
 	}
 	defer f.Close()
 
-	cfg := config.Config{WorkHours: 8}
+	cfg := config.Config{
+		WorkHours: 8,
+		WorkAlarm: config.WorkAlarm{
+			IsEnabled:     true,
+			BeforeMinutes: 15,
+		},
+		RestAlarm: config.RestAlarm{
+			IsEnabled: true,
+			Hours:     4,
+			Minutes:   0,
+		},
+	}
 	return json.NewEncoder(f).Encode(cfg)
 }

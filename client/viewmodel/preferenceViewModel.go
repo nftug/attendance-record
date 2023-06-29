@@ -11,13 +11,16 @@ import (
 )
 
 type PreferenceViewModel struct {
-	api              model.IConfigApi
-	receiver         *model.TimeStatusReceiver
-	window           fyne.Window
-	config           config.Config
-	workHrsData      binding.Int
-	WorkHrsLabelData binding.String
-	LocalPathData    binding.String
+	api         model.IConfigApi
+	receiver    *model.TimeStatusReceiver
+	window      fyne.Window
+	config      config.Config
+	workHrsData binding.Int
+
+	WorkHrsLabelData   binding.String
+	WorkAlarmEnabled   binding.Bool
+	WorkAlarmBeforeMin binding.Int
+	LocalPathData      binding.String
 }
 
 func NewPreferenceViewModel(a *model.AppContainer, w fyne.Window) *PreferenceViewModel {
@@ -27,15 +30,33 @@ func NewPreferenceViewModel(a *model.AppContainer, w fyne.Window) *PreferenceVie
 	localPathData := binding.NewString()
 	localPathData.Set(a.LocalPath.GetLocalPath())
 
+	workAlarmEnabled := binding.NewBool()
+	workAlarmEnabled.Set(config.WorkAlarm.IsEnabled)
+	workAlarmBeforeMin := binding.NewInt()
+	workAlarmBeforeMin.Set(config.WorkAlarm.BeforeMinutes)
+
 	vm := PreferenceViewModel{
-		api:              a.ConfigApi,
-		receiver:         a.Receiver,
-		window:           w,
-		config:           *config,
-		workHrsData:      workHrsData,
-		WorkHrsLabelData: workHrsLabelData,
-		LocalPathData:    localPathData,
+		api:                a.ConfigApi,
+		receiver:           a.Receiver,
+		window:             w,
+		config:             *config,
+		workHrsData:        workHrsData,
+		WorkHrsLabelData:   workHrsLabelData,
+		LocalPathData:      localPathData,
+		WorkAlarmEnabled:   workAlarmEnabled,
+		WorkAlarmBeforeMin: workAlarmBeforeMin,
 	}
+
+	workAlarmEnabled.AddListener(binding.NewDataListener(func() {
+		if v, err := workAlarmEnabled.Get(); err == nil {
+			vm.config.WorkAlarm.IsEnabled = v
+		}
+	}))
+	workAlarmBeforeMin.AddListener(binding.NewDataListener(func() {
+		if v, err := workAlarmBeforeMin.Get(); err == nil {
+			vm.config.WorkAlarm.BeforeMinutes = v
+		}
+	}))
 
 	vm.OnChangeWorkHrsData(float64(config.WorkHours))
 	return &vm
