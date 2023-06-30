@@ -8,8 +8,8 @@ import (
 )
 
 func SetSystemTrayMenu(a *model.AppContainer, w fyne.Window) {
-	if desk, ok := a.App.(desktop.App); ok {
-		qMenu := fyne.NewMenuItem("終了", a.App.Quit)
+	if desk, ok := fyne.CurrentApp().(desktop.App); ok {
+		qMenu := fyne.NewMenuItem("終了", fyne.CurrentApp().Quit)
 		qMenu.IsQuit = true
 
 		m := fyne.NewMenu(

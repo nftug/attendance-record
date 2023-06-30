@@ -16,5 +16,6 @@ var localApiSet = wire.NewSet(
 var Set = wire.NewSet(
 	localApiSet,
 	model.NewTimeStatusReceiverSingleton,
+	model.NewAppContainer,
 	NewClient,
 )

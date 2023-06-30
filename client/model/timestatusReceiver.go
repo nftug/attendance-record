@@ -3,9 +3,11 @@ package model
 import (
 	"attendance-record/domain/dto"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/multiplay/go-cticker"
+	"github.com/sqweek/dialog"
 )
 
 var instance *TimeStatusReceiver
@@ -52,7 +54,7 @@ func (s *TimeStatusReceiver) InvokeUpdate() {
 }
 
 func (s *TimeStatusReceiver) StartUpdateTick() {
-	go func() {
+	updateTick := func() {
 		for range cticker.New(time.Second, 100*time.Millisecond).C {
 			st, err := s.api.GetCurrentStatus()
 			if err != nil {
@@ -61,7 +63,45 @@ func (s *TimeStatusReceiver) StartUpdateTick() {
 			s.Status = *st
 			s.invokeUpdate()
 		}
-	}()
+	}
+
+	workAlarmTick := func() {
+		var workAlarmInvoked, workAlarmSnzInvoked bool
+		var workAlarmSnzSec int
+		const SnoozeMin = 5
+
+		for range cticker.New(time.Second, 100*time.Millisecond).C {
+			if s.Status.Work.EndedOn != *new(time.Time) {
+				continue
+			}
+
+			if workAlarmSnzInvoked {
+				workAlarmSnzSec++
+			}
+
+			doWorkAlarm := !workAlarmInvoked && Config.ShouldInvokeWorkAlarm(s.Status.Work.TotalTime)
+			doWorkSnooze := workAlarmSnzInvoked && workAlarmSnzSec%(SnoozeMin*60) == 0
+			if doWorkAlarm || doWorkSnooze {
+				workAlarmInvoked = true
+
+				var msg string
+				rem := int(Config.Overtime(s.Status.Work.TotalTime).Minutes() * -1)
+				if rem > 0 {
+					msg = "あと" + strconv.Itoa(rem) + "分で退勤予定時刻です。"
+				} else if rem == 0 {
+					msg = "退勤予定時刻になりました。"
+				} else {
+					msg = "退勤予定時刻を" + strconv.Itoa(rem) + "分超過しています。"
+				}
+
+				workAlarmSnzInvoked = dialog.
+					Message("%s\n%d分後に再度アラームを表示しますか？", msg, SnoozeMin).Title("勤怠記録").YesNo()
+			}
+		}
+	}
+
+	go updateTick()
+	go workAlarmTick()
 }
 
 func (s *TimeStatusReceiver) ToggleWork() {

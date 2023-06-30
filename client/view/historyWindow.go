@@ -13,7 +13,7 @@ var historyWindow fyne.Window
 
 func ShowHistoryWindow(a *model.AppContainer) {
 	if historyWindow == nil {
-		historyWindow = a.App.NewWindow("打刻履歴")
+		historyWindow = fyne.CurrentApp().NewWindow("打刻履歴")
 	}
 
 	vm := viewmodel.NewHistoryViewModel(a, historyWindow)

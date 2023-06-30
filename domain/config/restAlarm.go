@@ -13,5 +13,5 @@ func (r *RestAlarm) ShouldInvoke(c *Config, workHrs time.Duration, restHrs time.
 		return false
 	}
 	duration := time.Duration(r.Hours*int(time.Hour) + r.Minutes*int(time.Minute))
-	return c.Overtime(workHrs) >= duration
+	return workHrs >= duration
 }

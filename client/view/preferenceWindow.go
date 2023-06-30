@@ -13,7 +13,7 @@ var preferenceWindow fyne.Window
 
 func ShowPreferenceWindow(app *model.AppContainer) {
 	if preferenceWindow == nil {
-		preferenceWindow = app.App.NewWindow("設定")
+		preferenceWindow = fyne.CurrentApp().NewWindow("設定")
 	}
 
 	vm := viewmodel.NewPreferenceViewModel(app, preferenceWindow)

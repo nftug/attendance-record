@@ -4,29 +4,25 @@ import (
 	"attendance-record/client/model"
 	"attendance-record/client/resource"
 	"attendance-record/client/view"
-	"attendance-record/infrastructure/localpath"
 
 	"fyne.io/fyne/v2/app"
 )
 
 type Client struct {
-	api       model.ITimeStatusApi
-	cfgApi    model.IConfigApi
-	localpath *localpath.LocalPathService
+	appContainer *model.AppContainer
 }
 
-func NewClient(api model.ITimeStatusApi, cfgApi model.IConfigApi, lp *localpath.LocalPathService) *Client {
-	return &Client{api: api, cfgApi: cfgApi, localpath: lp}
+func NewClient(appContainer *model.AppContainer) *Client {
+	return &Client{appContainer: appContainer}
 }
 
 func (c *Client) Run() {
-	a := app.New()
+	a := app.NewWithID("attendance-record")
 	a.Settings().SetTheme(&resource.MyTheme{})
 	w := a.NewWindow("勤怠記録")
 
-	ac := model.NewAppContainer(c.api, c.cfgApi, c.localpath, a)
-	view.SetSystemTrayMenu(ac, w)
+	view.SetSystemTrayMenu(c.appContainer, w)
 
-	w.SetContent(view.NewTimeStatusView(ac, w))
+	w.SetContent(view.NewTimeStatusView(c.appContainer, w))
 	w.ShowAndRun()
 }
