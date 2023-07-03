@@ -1,10 +1,9 @@
 package main
 
-import "attendance-record/shared/util"
+import "attendance-record/client"
 
 func main() {
-	util.CheckIfAppRunning()
-
+	client.CheckIfAppRunning()
 	c := initClient()
 	c.Run()
 }

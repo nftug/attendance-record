@@ -1,0 +1,6 @@
+[Details]
+  Icon = "Icon.png"
+  Name = "attendance-record"
+  ID = "com.nftug.attendance-record"
+  Version = "3.0.0"
+  Build = 2

@@ -2,6 +2,7 @@ package viewmodel
 
 import (
 	"attendance-record/client/model"
+	"attendance-record/shared/appinfo"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -94,11 +95,11 @@ func (vm *CommandsViewModel) updateByIsActive() {
 	}
 
 	if s.Rest.IsActive {
-		vm.window.SetTitle("勤怠記録 - [休憩中]")
+		vm.window.SetTitle(appinfo.AppTitle + " - [休憩中]")
 	} else if s.Work.IsActive {
-		vm.window.SetTitle("勤怠記録 - [勤務中]")
+		vm.window.SetTitle(appinfo.AppTitle + " - [勤務中]")
 	} else {
-		vm.window.SetTitle("勤怠記録")
+		vm.window.SetTitle(appinfo.AppTitle)
 	}
 }
 

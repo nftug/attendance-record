@@ -2,6 +2,7 @@ package model
 
 import (
 	"attendance-record/domain/dto"
+	"attendance-record/shared/appinfo"
 	"fmt"
 	"strconv"
 	"time"
@@ -66,25 +67,23 @@ func (s *TimeStatusReceiver) StartUpdateTick() {
 	}
 
 	workAlarmTick := func() {
-		var workAlarmInvoked, workAlarmSnzInvoked bool
-		var workAlarmSnzSec int
-		const SnoozeMin = 5
+		var alarmInvoked, snzInvoked bool
+		var snzSec int
 
 		for range cticker.New(time.Second, 100*time.Millisecond).C {
 			if s.Status.Work.EndedOn != *new(time.Time) {
 				continue
 			}
-
-			if workAlarmSnzInvoked {
-				workAlarmSnzSec++
+			if snzInvoked {
+				snzSec++
 			}
 
-			doWorkAlarm := !workAlarmInvoked && Config.ShouldInvokeWorkAlarm(s.Status.Work.TotalTime)
-			doWorkSnooze := workAlarmSnzInvoked && workAlarmSnzSec%(SnoozeMin*60) == 0
-			if doWorkAlarm || doWorkSnooze {
-				workAlarmInvoked = true
-
+			shouldAlarm := !alarmInvoked && Config.ShouldInvokeWorkAlarm(s.Status.Work.TotalTime)
+			shouldSnooze := snzInvoked && snzSec%(Config.WorkAlarm.SnoozeMinutes*60) == 0
+			if shouldAlarm || shouldSnooze {
+				alarmInvoked = true
 				var msg string
+
 				rem := int(Config.Overtime(s.Status.Work.TotalTime).Minutes() * -1)
 				if rem > 0 {
 					msg = "あと" + strconv.Itoa(rem) + "分で退勤予定時刻です。"
@@ -94,14 +93,38 @@ func (s *TimeStatusReceiver) StartUpdateTick() {
 					msg = "退勤予定時刻を" + strconv.Itoa(rem) + "分超過しています。"
 				}
 
-				workAlarmSnzInvoked = dialog.
-					Message("%s\n%d分後に再度アラームを表示しますか？", msg, SnoozeMin).Title("勤怠記録").YesNo()
+				snzInvoked = dialog.
+					Message("%s\n%d分後に再度アラームを表示しますか？", msg, Config.WorkAlarm.SnoozeMinutes).Title(appinfo.AppTitle).YesNo()
+			}
+		}
+	}
+
+	restAlarmTick := func() {
+		var alarmInvoked, snzInvoked bool
+		var snzSec int
+
+		for range cticker.New(time.Second, 100*time.Millisecond).C {
+			if s.Status.Work.EndedOn != *new(time.Time) {
+				continue
+			}
+			if snzInvoked {
+				snzSec++
+			}
+
+			shouldAlarm := !alarmInvoked && Config.ShouldInvokeRestAlarm(s.Status.Work.TotalTime, s.Status.Rest.TotalTime)
+			shouldSnooze := snzInvoked && snzSec%(Config.RestAlarm.SnoozeMinutes*60) == 0
+			if shouldAlarm || shouldSnooze {
+				alarmInvoked = true
+				snzInvoked = dialog.
+					Message("休憩予定時刻になりました。\n%d分後に再度アラームを表示しますか？", Config.RestAlarm.SnoozeMinutes).
+					Title(appinfo.AppTitle).YesNo()
 			}
 		}
 	}
 
 	go updateTick()
 	go workAlarmTick()
+	go restAlarmTick()
 }
 
 func (s *TimeStatusReceiver) ToggleWork() {

@@ -11,29 +11,29 @@ import (
 )
 
 type PreferenceViewModel struct {
-	api         model.IConfigApi
-	receiver    *model.TimeStatusReceiver
-	window      fyne.Window
-	config      config.Config
-	workHrsData binding.Int
+	api      model.IConfigApi
+	receiver *model.TimeStatusReceiver
+	window   fyne.Window
+	config   config.Config
 
-	WorkHrsLabelData   binding.String
+	workHrsData      binding.Int
+	WorkHrsLabelData binding.String
+
 	WorkAlarmEnabled   binding.Bool
 	WorkAlarmBeforeMin binding.Int
-	LocalPathData      binding.String
+	WorkAlarmSnoozeMin binding.Int
+	RestAlarmEnabled   binding.Bool
+	RestAlarmHrs       binding.Int
+	RestAlarmMin       binding.Int
+	RestAlarmSnoozeMin binding.Int
+
+	LocalPathData binding.String
 }
 
 func NewPreferenceViewModel(a *model.AppContainer, w fyne.Window) *PreferenceViewModel {
 	config, _ := a.ConfigApi.LoadConfig()
 	workHrsData := binding.NewInt()
 	workHrsLabelData := binding.NewSprintf("%d時間", workHrsData)
-	localPathData := binding.NewString()
-	localPathData.Set(a.LocalPath.GetLocalPath())
-
-	workAlarmEnabled := binding.NewBool()
-	workAlarmEnabled.Set(config.WorkAlarm.IsEnabled)
-	workAlarmBeforeMin := binding.NewInt()
-	workAlarmBeforeMin.Set(config.WorkAlarm.BeforeMinutes)
 
 	vm := PreferenceViewModel{
 		api:                a.ConfigApi,
@@ -42,23 +42,59 @@ func NewPreferenceViewModel(a *model.AppContainer, w fyne.Window) *PreferenceVie
 		config:             *config,
 		workHrsData:        workHrsData,
 		WorkHrsLabelData:   workHrsLabelData,
-		LocalPathData:      localPathData,
-		WorkAlarmEnabled:   workAlarmEnabled,
-		WorkAlarmBeforeMin: workAlarmBeforeMin,
+		WorkAlarmEnabled:   binding.NewBool(),
+		WorkAlarmBeforeMin: binding.NewInt(),
+		WorkAlarmSnoozeMin: binding.NewInt(),
+		RestAlarmEnabled:   binding.NewBool(),
+		RestAlarmHrs:       binding.NewInt(),
+		RestAlarmMin:       binding.NewInt(),
+		RestAlarmSnoozeMin: binding.NewInt(),
+		LocalPathData:      binding.NewString(),
 	}
 
-	workAlarmEnabled.AddListener(binding.NewDataListener(func() {
-		if v, err := workAlarmEnabled.Get(); err == nil {
-			vm.config.WorkAlarm.IsEnabled = v
-		}
+	vm.OnChangeWorkHrsData(float64(config.WorkHours))
+
+	vm.WorkAlarmEnabled.Set(config.WorkAlarm.IsEnabled)
+	vm.WorkAlarmBeforeMin.Set(config.WorkAlarm.BeforeMinutes)
+	vm.WorkAlarmSnoozeMin.Set(config.WorkAlarm.SnoozeMinutes)
+
+	vm.WorkAlarmEnabled.AddListener(binding.NewDataListener(func() {
+		v, _ := vm.WorkAlarmEnabled.Get()
+		vm.config.WorkAlarm.IsEnabled = v
 	}))
-	workAlarmBeforeMin.AddListener(binding.NewDataListener(func() {
-		if v, err := workAlarmBeforeMin.Get(); err == nil {
-			vm.config.WorkAlarm.BeforeMinutes = v
-		}
+	vm.WorkAlarmBeforeMin.AddListener(binding.NewDataListener(func() {
+		v, _ := vm.WorkAlarmBeforeMin.Get()
+		vm.config.WorkAlarm.BeforeMinutes = v
+	}))
+	vm.WorkAlarmSnoozeMin.AddListener(binding.NewDataListener(func() {
+		v, _ := vm.WorkAlarmSnoozeMin.Get()
+		vm.config.WorkAlarm.SnoozeMinutes = v
 	}))
 
-	vm.OnChangeWorkHrsData(float64(config.WorkHours))
+	vm.RestAlarmEnabled.Set(config.RestAlarm.IsEnabled)
+	vm.RestAlarmHrs.Set(config.RestAlarm.Hours)
+	vm.RestAlarmMin.Set(config.RestAlarm.Minutes)
+	vm.RestAlarmSnoozeMin.Set(config.RestAlarm.SnoozeMinutes)
+
+	vm.RestAlarmEnabled.AddListener(binding.NewDataListener(func() {
+		v, _ := vm.RestAlarmEnabled.Get()
+		vm.config.RestAlarm.IsEnabled = v
+	}))
+	vm.RestAlarmHrs.AddListener(binding.NewDataListener(func() {
+		v, _ := vm.RestAlarmHrs.Get()
+		vm.config.RestAlarm.Hours = v
+	}))
+	vm.RestAlarmMin.AddListener(binding.NewDataListener(func() {
+		v, _ := vm.RestAlarmMin.Get()
+		vm.config.RestAlarm.Minutes = v
+	}))
+	vm.RestAlarmSnoozeMin.AddListener(binding.NewDataListener(func() {
+		v, _ := vm.RestAlarmSnoozeMin.Get()
+		vm.config.RestAlarm.SnoozeMinutes = v
+	}))
+
+	vm.LocalPathData.Set(a.LocalPath.GetLocalPath())
+
 	return &vm
 }
 

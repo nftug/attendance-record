@@ -2,6 +2,7 @@ package view
 
 import (
 	"attendance-record/client/model"
+	"attendance-record/client/resource"
 	"attendance-record/client/viewmodel"
 
 	"fyne.io/fyne/v2"
@@ -28,6 +29,8 @@ func ShowPreferenceWindow(app *model.AppContainer) {
 
 	preferenceWindow.SetCloseIntercept(preferenceWindow.Hide)
 	preferenceWindow.Resize(fyne.NewSize(500, 400))
+	preferenceWindow.SetFixedSize(true)
+	preferenceWindow.SetIcon(resource.ResourceIconPng)
 
 	preferenceWindow.Show()
 }

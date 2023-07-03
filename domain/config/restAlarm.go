@@ -3,9 +3,10 @@ package config
 import "time"
 
 type RestAlarm struct {
-	IsEnabled bool `json:"isEnabled"`
-	Hours     int  `json:"hours"`
-	Minutes   int  `json:"minutes"`
+	IsEnabled     bool `json:"isEnabled"`
+	Hours         int  `json:"hours"`
+	Minutes       int  `json:"minutes"`
+	SnoozeMinutes int  `json:"snoozeMinutes"`
 }
 
 func (r *RestAlarm) ShouldInvoke(c *Config, workHrs time.Duration, restHrs time.Duration) bool {

@@ -5,6 +5,7 @@ import "time"
 type WorkAlarm struct {
 	IsEnabled     bool `json:"isEnabled"`
 	BeforeMinutes int  `json:"beforeMinutes"`
+	SnoozeMinutes int  `json:"snoozeMinutes"`
 }
 
 func (w *WorkAlarm) ShouldInvoke(c *Config, workHrs time.Duration) bool {

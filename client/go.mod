@@ -6,8 +6,10 @@ require (
 	fyne.io/fyne/v2 v2.3.5
 	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.5.0
+	github.com/mitchellh/go-ps v1.0.0
 	github.com/multiplay/go-cticker v0.0.0-20190411183326-bd2f021b1c08
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
+	github.com/sqweek/dialog v0.0.0-20220809060634-e981b270ebbf
 )
 
 require (
@@ -27,7 +29,6 @@ require (
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/sqweek/dialog v0.0.0-20220809060634-e981b270ebbf // indirect
 	github.com/srwiley/oksvg v0.0.0-20220731023508-a61f04f16b76 // indirect
 	github.com/srwiley/rasterx v0.0.0-20210519020934-456a8d69b780 // indirect
 	github.com/stretchr/testify v1.8.0 // indirect
